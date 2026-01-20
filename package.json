@@ -1,0 +1,22 @@
+{
+  "name": "seraphimcms-installer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "run": "tsc && sudo node ./dist/main.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0",
+  "devDependencies": {
+    "@types/node": "^25.0.7",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "is-elevated": "^4.0.0"
+  }
+}
