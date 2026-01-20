@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "run": "tsc && sudo node ./dist/main.js"
+    "bundle": "esbuild dist/main.js --bundle --platform=node --outfile=dist/bundle.js && terser --compress --minify -- dist/bundle.js > dist/bundle.min.js",
+    "buildBlob": "node --experimental-sea-config sea-config.json",
+    "prepublish": "run-s build bundle buildBlob && mkdir -p publish && cp node_binaries/node publish/installer && cp dist/sea-prep.blob publish/sea-prep.blob",
+    "publish:linux": "run-s prepublish && postject publish/installer NODE_SEA_BLOB publish/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
   },
   "type": "module",
   "keywords": [],
@@ -14,9 +17,15 @@
   "packageManager": "pnpm@10.27.0",
   "devDependencies": {
     "@types/node": "^25.0.7",
+    "esbuild": "^0.27.2",
+    "npm-run-all": "^4.1.5",
+    "postject": "1.0.0-alpha.6",
+    "run-s": "^0.0.0",
+    "terser": "^5.46.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "is-elevated": "^4.0.0"
+    "is-elevated": "^4.0.0",
+    "mongodb": "^7.0.0"
   }
 }

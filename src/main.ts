@@ -6,6 +6,11 @@ import isElevated from 'is-elevated';
 import setupEnv from './setupEnv/setupEnv.ts';
 import setupContainer from './setupContainer/setupContainer.ts';
 
+import win32 from './dockerInstallers/win32.ts';
+import linux from './dockerInstallers/linux.ts';
+
+const dockerInstallers: Record<string, () => Promise<void>> = { win32, linux };
+
 const isDockerInstalled = (): boolean => {
     if (os.platform() === 'win32')
         try {
@@ -19,12 +24,12 @@ const isDockerInstalled = (): boolean => {
 };
 
 const isSupportedPlatform = (): boolean =>
-    [ 'win32', 'linux' ].includes(os.platform());
+    os.platform() in dockerInstallers;
 
 const installDocker = async () =>
-    await (await import(`./dockerInstallers/${ os.platform() }.js`)).default();
+    await dockerInstallers[ os.platform() ]!();
 
-global.skipToStep = Number(process.argv.pop()) || Infinity;
+global.skipToStep = Number(process.argv.pop()) || -Infinity;
 
 (async () => {
     if (!isSupportedPlatform()) {
@@ -39,17 +44,16 @@ global.skipToStep = Number(process.argv.pop()) || Infinity;
 
     console.log('Executing step 1: Installing docker.');
 
-    if (isDockerInstalled() && global.skipToStep >= 1)
+    if (isDockerInstalled() && global.skipToStep <= 1)
         await installDocker();
 
     console.log('Executing step 2: Setting up environment.');
 
-    if (global.skipToStep >= 2)
+    if (global.skipToStep <= 2)
         await setupEnv();
 
     console.log('Executing step 3: Setting up SeraphimCMS.');
 
-    if (global.skipToStep >= 3)
+    if (global.skipToStep <= 3)
         await setupContainer();
-
 })();

@@ -1,7 +1,19 @@
 import { spawnSync } from "node:child_process";
 
+import apk from './linux/apk.ts';
+import apt from './linux/apt.ts';
+import dnf from './linux/dnf.ts';
+import yum from './linux/yum.ts';
+import zypper from './linux/zypper.ts';
+import pacman from './linux/pacman.ts';
+import xbpsInstall from './linux/xbps-install.ts';
+
+const packageManagers: Record<string, () => void> = {
+    apk, apt, dnf, yum, zypper, pacman, 'xbps-install': xbpsInstall
+};
+
 const getPM = () =>
-    [ 'apk', 'apt', 'dnf', 'pacman', 'xbps-install', 'yum', 'zypper' ]
+    Object.keys(packageManagers)
         .find(pm => !spawnSync('which', [ pm ]).status);
 
 const installDocker = async () => {
@@ -14,7 +26,7 @@ const installDocker = async () => {
 
     console.log('Found package manager: ' + pm);
 
-    await (await import(`./linux/${ pm }.js`)).default();
+    packageManagers[ pm ]!();
 };
 
-module.exports.default = installDocker;
+export default installDocker;

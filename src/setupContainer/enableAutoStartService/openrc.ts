@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 
 import { CONTAINER_NAME, DOCKER_BIN, ENV_FILE, IMAGE_NAME } from './constants.ts';
 
-export function setupOpenRC() {
+const enableAutoStartService = () => {
     const scriptFile = `/etc/init.d/${ CONTAINER_NAME }`;
     const content =
         `#!/sbin/openrc-run\n` +
@@ -25,4 +25,6 @@ export function setupOpenRC() {
 
     fs.writeFileSync(scriptFile, content, { mode: 0o755 });
     execSync(`rc-update add ${CONTAINER_NAME} default`);
-}
+};
+
+export default enableAutoStartService;

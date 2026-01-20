@@ -19,7 +19,6 @@ const enableAutoStartService = () => {
         `[Install]\n` +
         `WantedBy=multi-user.target`;
 
-
     fs.writeFileSync(serviceFile, content, { mode: 0o644 });
     spawnSync('systemctl daemon-reload');
     spawnSync(`systemctl enable ${ CONTAINER_NAME }`);

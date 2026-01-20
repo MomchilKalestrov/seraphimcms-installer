@@ -54,6 +54,8 @@ const setupEnv = async () => {
         .map(([ key, value ]) => `${ key }=${ toEscapedValue(value) }`)
         .join('\n');
 
+
+    fs.mkdirSync('/etc/seraphimcms', { recursive: true });
     fs.writeFileSync('/etc/seraphimcms/.env', file);
 };
 

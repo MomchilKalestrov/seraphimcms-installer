@@ -20,6 +20,8 @@ jspm_packages/
 
 *.tsbuildinfo
 
+publish
+node_binaries
 .npm
 
 .node_repl_history

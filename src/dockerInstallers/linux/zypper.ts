@@ -10,4 +10,4 @@ const installDocker = async () => {
     await enableDockerService();
 };
 
-module.exports.default = installDocker;
+export default installDocker;

@@ -1,8 +1,17 @@
 import { execSync } from 'node:child_process';
 
+import init from './enableDockerService/init.ts';
+import runit from './enableDockerService/runit.ts';
+import openrc from './enableDockerService/openrc.ts';
+import systemd from './enableDockerService/systemd.ts';
+
+const inits: Record<string, () => void> = {
+    init, openrc, runit, systemd
+};
+
 const getInit = (): string | undefined => {
     const init = execSync('ps -p 1 -o comm=', { encoding: 'utf8' }).trim();
-    return [ 'systemd', 'openrc', 'runit', 'init' ].includes(init) ? init : undefined;
+    return init in inits ? init : undefined;
 };
 
 const enableDockerService = async () => {
@@ -13,7 +22,7 @@ const enableDockerService = async () => {
         process.exit(0);
     };
 
-    await (require(`./enableDockerService/${ init }.ts`) as { default: () => Promise<void>; }).default();
+    inits[ init ]!();
 };
 
 export default enableDockerService;
