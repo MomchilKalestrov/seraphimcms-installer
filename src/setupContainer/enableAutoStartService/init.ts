@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import { spawnSync } from 'node:child_process';
 
+import { run } from '../../utils/exec.ts';
 import { CONTAINER_NAME, DOCKER_BIN, ENV_FILE, IMAGE_NAME } from './constants.ts';
 
 const enableAutoStartService = () => {
@@ -39,7 +39,7 @@ const enableAutoStartService = () => {
         `exit 0\n`;
 
     fs.writeFileSync(scriptFile, content, { mode: 0o755 });
-    spawnSync('update-rc.d', [ CONTAINER_NAME, 'defaults' ]);
+    run('update-rc.d', [ CONTAINER_NAME, 'defaults' ]);
 };
 
 export default enableAutoStartService;

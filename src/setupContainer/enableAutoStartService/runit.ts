@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 
+import { run } from '../../utils/exec.ts';
 import { CONTAINER_NAME, DOCKER_BIN, ENV_FILE, IMAGE_NAME } from './constants.ts';
 
 const enableAutoStartService = () => {
@@ -20,7 +20,7 @@ const enableAutoStartService = () => {
 
     const link = `/var/service/${ CONTAINER_NAME }`;
     if (!fs.existsSync(link))
-        spawnSync('ln', [ '-s', serviceDir, link ]);
+        run('ln', [ '-s', serviceDir, link ]);
 }
 
 export default enableAutoStartService;

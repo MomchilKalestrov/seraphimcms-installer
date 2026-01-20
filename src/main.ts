@@ -42,18 +42,21 @@ global.skipToStep = Number(process.argv.pop()) || -Infinity;
         process.exit(0);
     };
 
-    console.log('Executing step 1: Installing docker.');
-
-    if (isDockerInstalled() && global.skipToStep <= 1)
-        await installDocker();
-
-    console.log('Executing step 2: Setting up environment.');
-
-    if (global.skipToStep <= 2)
+    if (global.skipToStep <= 1) {
+        console.log('Executing step 1: Installing docker.');
+        if (isDockerInstalled())
+            await installDocker();
+    };
+    
+    if (global.skipToStep <= 2) {
+        console.log('Executing step 2: Setting up environment.');
         await setupEnv();
+    };
 
-    console.log('Executing step 3: Setting up SeraphimCMS.');
-
-    if (global.skipToStep <= 3)
+    if (global.skipToStep <= 3) {
+        console.log('Executing step 3: Setting up SeraphimCMS.');
         await setupContainer();
+    };
+
+    process.exit(0);
 })();

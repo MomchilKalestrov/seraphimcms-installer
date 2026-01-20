@@ -1,11 +1,11 @@
-import { spawnSync } from 'node:child_process';
+import { run } from '../../utils/exec.ts';
 
 import enableDockerService from './enableDockerService.ts';
 
 const installDocker = async () => {
-    spawnSync('dnf', [ 'install', '-y', 'dnf-plugins-core' ]);
-    spawnSync('dnf', [ 'config-manager', '--add-repo', 'https://download.docker.com/linux/fedora/docker-ce.repo' ]);
-    spawnSync('dnf', [ 'install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io' ]);
+    run('dnf', [ 'install', '-y', 'dnf-plugins-core' ]);
+    run('dnf', [ 'config-manager', '--add-repo', 'https://download.docker.com/linux/fedora/docker-ce.repo' ]);
+    run('dnf', [ 'install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io' ]);
 
     await enableDockerService();
 };

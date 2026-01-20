@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
-import { spawnSync } from 'node:child_process';
 
+import { run } from '../../utils/exec.ts';
 import { capture } from '../../utils/exec.ts';
 import enableDockerService from './enableDockerService.ts';
 
@@ -25,13 +25,13 @@ const installDocker = async () => {
         return match[ 1 ]!.trim().replace(/^"|"$/g, '');
     };
 
-    spawnSync('apt', [ 'update' ]);
-    spawnSync('apt', [ 'install', '-y', 'ca-certificates', 'gnupg' ]);
+    run('apt', [ 'update' ]);
+    run('apt', [ 'install', '-y', 'ca-certificates', 'gnupg' ]);
 
-    spawnSync('install', [ '-m', '0755', '-d', '/etc/apt/keyrings' ]);
+    run('install', [ '-m', '0755', '-d', '/etc/apt/keyrings' ]);
 
     const gpgKey = await fetchBuffer('https://download.docker.com/linux/ubuntu/gpg');
-    spawnSync('gpg', [ '--batch', '--dearmor', '-o', '/etc/apt/keyrings/docker.gpg' ], { input: gpgKey });
+    run('gpg', [ '--batch', '--dearmor', '-o', '/etc/apt/keyrings/docker.gpg' ], { input: gpgKey });
 
     const arch = (await capture('dpkg', [ '--print-architecture' ])).trim();
     const codename = await getVersionCodename();
@@ -41,8 +41,8 @@ const installDocker = async () => {
 
     await fs.writeFile('/etc/apt/sources.list.d/docker.list', dockerListLine, { encoding: 'utf8' });
 
-    spawnSync('apt', ['update']);
-    spawnSync('apt', ['install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io']);
+    run('apt', ['update']);
+    run('apt', ['install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io']);
 
     await enableDockerService();
 };

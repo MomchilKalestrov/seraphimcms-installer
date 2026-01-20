@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { run } from '../utils/exec.ts';
 
 import init from './enableAutoStartService/init.ts';
 import runit from './enableAutoStartService/runit.ts';
@@ -10,7 +10,7 @@ const inits: Record<string, () => void> = {
 };
 
 const getInit = (): string | undefined => {
-    const init = execSync('ps -p 1 -o comm=', { encoding: 'utf8' }).trim();
+    const init = run('ps', [ '-p', '1', '-o', 'comm=' ], { encoding: 'utf8' }).trim();
     return init in inits ? init : undefined;
 };
 

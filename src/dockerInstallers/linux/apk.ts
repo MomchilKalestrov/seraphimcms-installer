@@ -1,12 +1,13 @@
-import { spawnSync } from 'node:child_process';
+import { run } from '../../utils/exec.ts';
+
 import enableDockerService from './enableDockerService.ts';
 
 const installDocker = async () => {
-	spawnSync('apk', [ 'update' ]);
-	spawnSync('apk', [ 'add', 'docker' ]);
+	run('apk', [ 'update' ]);
+	run('apk', [ 'add', 'docker' ]);
 
-	spawnSync('rc-update', [ 'add', 'docker' ]);
-	spawnSync('service', [ 'docker', 'start' ]);
+	run('rc-update', [ 'add', 'docker' ]);
+	run('service', [ 'docker', 'start' ]);
 
     await enableDockerService();
 };

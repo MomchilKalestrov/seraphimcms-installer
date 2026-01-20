@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import { spawnSync } from 'node:child_process';
 
+import { run } from '../../utils/exec.ts';
 import { CONTAINER_NAME, DOCKER_BIN } from './constants.ts';
 
 const enableAutoStartService = () => {
@@ -20,9 +20,9 @@ const enableAutoStartService = () => {
         `WantedBy=multi-user.target`;
 
     fs.writeFileSync(serviceFile, content, { mode: 0o644 });
-    spawnSync('systemctl daemon-reload');
-    spawnSync(`systemctl enable ${ CONTAINER_NAME }`);
-    spawnSync(`systemctl start ${ CONTAINER_NAME }`);
+    run('systemctl', [ 'daemon-reload' ]);
+    run('systemctl', [ 'enable', CONTAINER_NAME ]);
+    run('systemctl', [ 'start', CONTAINER_NAME ]);
 }
 
 

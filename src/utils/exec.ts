@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync, type SpawnSyncOptions } from 'node:child_process';
 
 type RunOptions = {
     cwd?: string;
@@ -33,4 +33,9 @@ const capture = (command: string, args: string[] = [], options: Omit<RunOptions,
         });
     });
 
-export { capture };
+const run = (command: string, args: string[] | undefined = [], options?: SpawnSyncOptions) => {
+    console.log('> ' + [ command, ...args ].join(' '));
+    return spawnSync(command, args, options).stdout.toString();
+};
+
+export { capture, run };

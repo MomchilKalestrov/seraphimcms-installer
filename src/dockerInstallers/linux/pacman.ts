@@ -1,9 +1,9 @@
-import { spawnSync } from 'node:child_process';
+import { run } from '../../utils/exec.ts';
 
 import enableDockerService from './enableDockerService.ts';
 
 const installDocker = async () => {
-	spawnSync('pacman', [ '-Syu', '--noconfirm', 'docker' ], { stdio: 'inherit' });
+	run('pacman', [ '-Syu', '--noconfirm', 'docker' ], { stdio: 'inherit' });
 
     await enableDockerService();
 };

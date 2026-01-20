@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import http from 'node:https';
-import { spawnSync } from 'node:child_process';
 
+import { run } from '../utils/exec.ts';
 import enableAutoStartService from './enableAutoStartService.ts';
 
 const OWNER = 'MomchilKalestrov';
@@ -47,9 +47,9 @@ const downloadContainer = () =>
 const setupContainer = async () => {
     await downloadContainer();
 
-    spawnSync('docker', [ 'load', '-i', FILENAME ]);
+    run('docker', [ 'load', '-i', FILENAME ], { });
     
-    spawnSync('docker', [ 'run', '-d', '--env-file=/etc/seraphimcms/.env', '--restart', 'unless-stopped', 'seraphimcms:latest' ]);
+    run('docker', [ 'run', '-d', '--env-file=/etc/seraphimcms/.env', '--restart', 'unless-stopped', 'seraphimcms:latest' ]);
 
     await enableAutoStartService();
 };
