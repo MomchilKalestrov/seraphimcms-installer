@@ -7,8 +7,10 @@
     "build": "tsc",
     "bundle": "esbuild dist/main.js --bundle --platform=node --outfile=dist/bundle.js && terser --compress --minify -- dist/bundle.js > dist/bundle.min.js",
     "buildBlob": "node --experimental-sea-config sea-config.json",
-    "prepublish": "run-s build bundle buildBlob && mkdir -p publish && cp node_binaries/node publish/installer && cp dist/sea-prep.blob publish/sea-prep.blob",
-    "publish:linux": "run-s prepublish && postject publish/installer NODE_SEA_BLOB publish/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
+    "prepublish:linux": "run-s build bundle buildBlob && mkdir -p publish && cp node_binaries/node publish/installer && cp dist/sea-prep.blob publish/sea-prep.blob",
+    "prepublish:windows": "run-s build bundle buildBlob && mkdir -p publish && cp node_binaries/node.exe publish/installer.exe && signtool.exe remove /s publish/installer.exe && cp dist/sea-prep.blob publish/sea-prep.blob",
+    "publish:linux": "run-s prepublish:linux && postject publish/installer NODE_SEA_BLOB publish/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
+    "publish:windows": "run-s prepublish:windows && postject publish/installer.exe NODE_SEA_BLOB publish/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
   },
   "type": "module",
   "keywords": [],

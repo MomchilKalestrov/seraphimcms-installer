@@ -1,6 +1,19 @@
+import fs from 'node:fs';
 import crypto from 'node:crypto';
 
 import { MongoClient } from 'mongodb';
+
+import { ENV_FILE } from './setupContainer/enableAutoStartService/constants.ts';
+
+const extractEnv = (): Record<string, string> =>
+    Object.fromEntries(
+        fs
+            .readFileSync(ENV_FILE)
+            .toString()
+            .split('\n')
+            .filter(Boolean)
+            .map(line => line.split('='))
+    );
 
 const getUser = async (): Promise<{ username: string; passwordHash: string; }> => {
 
@@ -28,13 +41,15 @@ const getUser = async (): Promise<{ username: string; passwordHash: string; }> =
     //@ts-ignore
     const passwordHash = `$${ algorithm }$v=19$m=${ memory },t=${ passes },p=${ parallelism }$${ nonce.toBase64({ omitPadding: true }) }$${ hash.toBase64({ omitPadding: true }) }`;
     
+    console.log('Password has been hashed.');
+
     return { username, passwordHash };
-}
+};
 
 const createOwnerUser = async () => {
     const user = { ...await getUser(), role: 'owner' };
-
-    const client = new MongoClient(envVariables.MONGODB_URI!);
+    
+    const client = new MongoClient(extractEnv().MONGODB_URI!);
 
     const db = client.db();
     const collection = db.collection('users');

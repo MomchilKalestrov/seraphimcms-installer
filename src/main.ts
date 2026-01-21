@@ -70,6 +70,13 @@ global.skipToStep = Number(process.argv.pop()) || -Infinity;
         await createOwnerUser();
     };
 
+    console.log('Congratulations. You now have SeraphimCMS installed on your system.');
+
+    // if (skipToStep <= 5) {
+    //     console.log('Executing step 5: <>.');
+    //     await <>();
+    // };
+
     global.rl.close();
 
     process.exit(0);
