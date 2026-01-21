@@ -1,11 +1,5 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-import readline from 'node:readline/promises';
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
 
 const toEscapedValue = (value: string): string => {
     let out = '';
@@ -41,16 +35,16 @@ const toEscapedValue = (value: string): string => {
 };
 
 const setupEnv = async () => {
-    let env: Record<string, string> = {};
+    global.envVariables = {};
 
-    env.MONGODB_URI = await rl.question('What is your connection string?');
-    env.NEXTAUTH_URL = await rl.question('What will be your domain?');
-    env.NEXTAUTH_SECRET = crypto.randomBytes(32).toString('base64');
-    env.BLOB_READ_WRITE_TOKEN = await rl.question('What is your Vercel Blob read/ write token?');
-    env.NEXT_PUBLIC_BLOB_URL = await rl.question('What is your Vercel Blob URL?');
+    global.envVariables.MONGODB_URI = await rl.question('What is your connection string?\n> ');
+    global.envVariables.NEXTAUTH_URL = await rl.question('What will be your domain?\n> ');
+    global.envVariables.NEXTAUTH_SECRET = crypto.randomBytes(32).toString('base64');
+    global.envVariables.BLOB_READ_WRITE_TOKEN = await rl.question('What is your Vercel Blob read/ write token?\n> ');
+    global.envVariables.NEXT_PUBLIC_BLOB_URL = await rl.question('What is your Vercel Blob URL?\n> ');
 
     const file = Object
-        .entries(env)
+        .entries(global.envVariables)
         .map(([ key, value ]) => `${ key }=${ toEscapedValue(value) }`)
         .join('\n');
 

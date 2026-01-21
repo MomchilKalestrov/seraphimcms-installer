@@ -25,6 +25,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "argon2-browser": "^1.18.0",
     "is-elevated": "^4.0.0",
     "mongodb": "^7.0.0"
   }

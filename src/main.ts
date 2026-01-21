@@ -1,4 +1,5 @@
 import os from 'node:os';
+import readline from 'node:readline/promises';
 import { spawnSync } from 'node:child_process';
 
 import isElevated from 'is-elevated';
@@ -8,8 +9,14 @@ import setupContainer from './setupContainer/setupContainer.ts';
 
 import win32 from './dockerInstallers/win32.ts';
 import linux from './dockerInstallers/linux.ts';
+import createOwnerUser from './createOwnerUser.ts';
 
 const dockerInstallers: Record<string, () => Promise<void>> = { win32, linux };
+
+global.rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
 const isDockerInstalled = (): boolean => {
     if (os.platform() === 'win32')
@@ -42,21 +49,28 @@ global.skipToStep = Number(process.argv.pop()) || -Infinity;
         process.exit(0);
     };
 
-    if (global.skipToStep <= 1) {
+    if (skipToStep <= 1) {
         console.log('Executing step 1: Installing docker.');
         if (isDockerInstalled())
             await installDocker();
     };
     
-    if (global.skipToStep <= 2) {
+    if (skipToStep <= 2) {
         console.log('Executing step 2: Setting up environment.');
         await setupEnv();
     };
 
-    if (global.skipToStep <= 3) {
+    if (skipToStep <= 3) {
         console.log('Executing step 3: Setting up SeraphimCMS.');
         await setupContainer();
     };
+
+    if (skipToStep <= 4) {
+        console.log('Executing step 4: Creating an owner user.');
+        await createOwnerUser();
+    };
+
+    global.rl.close();
 
     process.exit(0);
 })();
