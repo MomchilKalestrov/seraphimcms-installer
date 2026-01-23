@@ -1,0 +1,3 @@
+onlyBuiltDependencies:
+  - '@nodegui/nodegui'
+  - '@nodegui/qode'

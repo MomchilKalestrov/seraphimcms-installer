@@ -1,0 +1,22 @@
+{
+    "name": "tauri-app",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "build": "tsc && rm -r ./dist/assets && cp -r ./src/assets ./dist/assets",
+        "run": "qode dist/main.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@nodegui/nodegui": "^0.73.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.9.3",
+        "@nodegui/qode": "^18.12.1",
+        "@types/node": "^25.0.9"
+    }
+}
