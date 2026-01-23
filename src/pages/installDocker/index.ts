@@ -63,12 +63,12 @@ class InstallDockerPage extends BasePage {
         this.elements = new QWidget();
         this.elements.setLayout(layout);
         this.elements.setContentsMargins(8, 8, 8, 8);
-        layout.addWidget(title);
         layout.setStretch(0, 0);
-        layout.addWidget(text);
         layout.setStretch(1, 0);
-        layout.addWidget(this.installButton, 0, AlignmentFlag.AlignLeft);
         layout.setStretch(2, 1);
+        layout.addWidget(title);
+        layout.addWidget(text);
+        layout.addWidget(this.installButton, 0, AlignmentFlag.AlignLeft);
         //#endregion
     };
 

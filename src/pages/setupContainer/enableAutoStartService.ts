@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { getInit } from '../../lib/utils.ts';
 
 import init from './enableAutoStartService/init.ts';
 import runit from './enableAutoStartService/runit.ts';
@@ -9,19 +9,9 @@ const inits: Record<string, () => void> = {
     init, openrc, runit, systemd
 };
 
-const getInit = (): string | undefined => {
-    const init = spawnSync('ps', [ '-p', '1', '-o', 'comm=' ]).stdout.toString().trim();
-    return init in inits ? init : undefined;
-};
-
 const enableAutoStartService = async () => {
     const init = getInit();
-
-    if (!init) {
-        console.error('Unsuported init!');
-        process.exit(0);
-    };
-
+    if (!init) throw 'Unsuported init!';
     inits[ init ]!();
 };
 

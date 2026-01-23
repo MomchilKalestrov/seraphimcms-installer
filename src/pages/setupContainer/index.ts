@@ -14,6 +14,7 @@ import download from '../../lib/download.ts';
 import { OWNER, REPO, IMAGE_FILENAME } from '../../lib/constants.ts';
 import { execSync, spawnSync } from 'node:child_process';
 import enableAutoStartService from './enableAutoStartService.ts';
+import exposePort from './exposePort.ts';
 
 class SetupContainerPage extends BasePage {
     private elements: QWidget;
@@ -67,10 +68,7 @@ class SetupContainerPage extends BasePage {
             }
         });
 
-        if (!response.ok) {
-            console.error('Failed to download SeraphimCMS Docker container.');
-            process.exit(0);
-        };
+        if (!response.ok) throw 'Failed to download SeraphimCMS Docker container.';
 
         const { assets } = await response.json() as { assets: { name: string; browser_download_url: string; }[]; };
 
@@ -90,10 +88,16 @@ class SetupContainerPage extends BasePage {
                 spawnSync('docker', [ 'load', '-i', IMAGE_FILENAME ]);
                 spawnSync('docker', [ 'run', '-d', `--env-file=${ IMAGE_FILENAME }`, '--restart', 'unless-stopped', 'seraphimcms:latest' ]);
 
+                this.status.setText('Exposing port...')
+                exposePort();
+                
                 this.status.setText('Enabling on startup...');
-                enableAutoStartService().then(() => this.status.setText('Done!'));
+                enableAutoStartService().then(() => {
+                    this.status.setText('Done!');
+                    this.statusEventEmitter.emit('status', true);
+                });
             })
-            .catch(error => this.status.setText('Error: ' + error.message));
+            .catch(error => this.status.setText('Error: ' + error.message))
     };
 
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {
