@@ -12,10 +12,14 @@ import {
     QMainWindow,
     QPushButton,
     AlignmentFlag,
+    QIcon,
 } from '@nodegui/nodegui';
 
 import pages from '../pages/index.ts';
 import type BasePage from '../lib/basePage.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class Window {
     private window: QMainWindow;
@@ -29,18 +33,21 @@ class Window {
     
     constructor () {
         this.window = new QMainWindow();
+        this.window.setWindowTitle('SeraphimCMS Installer');
+        const iconPath = path.resolve(__dirname, '..', 'assets', 'icon.ico');
+        const iconPixmap = new QPixmap();
+        iconPixmap.load(iconPath);
+        this.window.setWindowIcon(new QIcon(iconPixmap));
         this.window.setFixedSize(600, 400);
         this.centralWidget = new QWidget();
         this.window.setCentralWidget(this.centralWidget);
 
         //#region - Banner -
         const banner = new QLabel();
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
         const bannerPath = path.resolve(__dirname, '..', 'assets', 'banner.png');
-        const pixmap = new QPixmap();
-        pixmap.load(bannerPath);
-        banner.setPixmap(pixmap);
+        const bannerPixmap = new QPixmap();
+        bannerPixmap.load(bannerPath);
+        banner.setPixmap(bannerPixmap);
         banner.setFixedSize(150, 400);
         banner.move(0, 0);
         //#endregion

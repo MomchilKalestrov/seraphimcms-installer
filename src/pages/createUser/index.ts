@@ -8,7 +8,8 @@ import {
     AlignmentFlag,
     QSizePolicyPolicy,
     QPushButton,
-    EchoMode
+    EchoMode,
+    TextFormat
 } from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
@@ -34,11 +35,15 @@ class CreateUserPage extends BasePage {
 
         //#region - Text -
         const text = new QLabel();
-        text.setText(
-            'Set the administator\'s username and password.\n' +
-            'The username must include only alphabetical characters.\n' +
-            'The password must be 8 characters long, 2 alphabetical\n' +
-            'characters and 1 special character.'
+        text.setTextFormat(TextFormat.RichText);
+        text.setInlineStyle('margin-bottom: 8px;')
+        text.setText(/*html*/
+            `<p>Set the administator's username and password.</p>
+            <p>- The username must include only alphabetical characters.</p>
+            <p>
+                - The password must be 8 characters long, 2 alphabetical<br />
+                characters and 1 special character.
+            </p>`
         );
         //#endregion
 
