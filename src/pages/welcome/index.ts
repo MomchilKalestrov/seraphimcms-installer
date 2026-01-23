@@ -1,4 +1,10 @@
-import { Direction, QBoxLayout, QLabel, QSizePolicyPolicy, QWidget, TextFormat } from '@nodegui/nodegui';
+import {
+    QLabel,
+    QWidget,
+    Direction,
+    TextFormat,
+    QBoxLayout
+} from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
 

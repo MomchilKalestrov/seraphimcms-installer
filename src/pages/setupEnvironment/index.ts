@@ -1,12 +1,27 @@
-import { AlignmentFlag, QGridLayout, QLabel, QLineEdit, QSizePolicyPolicy, QTextEdit, QWidget } from '@nodegui/nodegui';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+
+import {
+    QLabel,
+    QWidget,
+    QLineEdit,
+    QGridLayout,
+    AlignmentFlag,
+    QSizePolicyPolicy
+} from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
+import { ENV_FILE, ENV_PATH } from '../../lib/constants.ts';
 
 class SetupEnvironmentPage extends BasePage {
     private elements: QWidget;
+    private requiredVariables = [ 'MONGODB_URI', 'NEXTAUTH_URL', 'BLOB_READ_WRITE_TOKEN', 'NEXT_PUBLIC_BLOB_URL', 'NEXTAUTH_SECRET' ];
     
     constructor() {
         super();
+
+        global.envVars = {};
+        global.envVars.NEXTAUTH_SECRET = crypto.randomBytes(32).toString('base64');
 
         //#region - Title -
         const title = new QLabel();
@@ -20,6 +35,7 @@ class SetupEnvironmentPage extends BasePage {
         const mongoInput = new QLineEdit();
         mongoInput.setPlaceholderText('mongodb+srv://<...>');
         mongoInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
+        mongoInput.addEventListener('textChanged', text => this.setEnvVar('MONGODB_URI', text));
         //#endregion
 
         //#region - NEXTAUTH_URL -
@@ -28,6 +44,7 @@ class SetupEnvironmentPage extends BasePage {
         const domainInput = new QLineEdit();
         domainInput.setPlaceholderText('www.example.com');
         domainInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
+        domainInput.addEventListener('textChanged', text => this.setEnvVar('NEXTAUTH_URL', text));
         //#endregion
 
         //#region - BLOB_READ_WRITE_TOKEN -
@@ -36,6 +53,7 @@ class SetupEnvironmentPage extends BasePage {
         const blobTokenInput = new QLineEdit();
         blobTokenInput.setPlaceholderText('vercel_blob_rw_<...>');
         blobTokenInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
+        blobTokenInput.addEventListener('textChanged', text => this.setEnvVar('BLOB_READ_WRITE_TOKEN', text));
         //#endregion
 
         //#region - NEXT_PUBLIC_BLOB_URL -
@@ -44,6 +62,7 @@ class SetupEnvironmentPage extends BasePage {
         const blobUrlInput = new QLineEdit();
         blobUrlInput.setPlaceholderText('https://<...>.public.blob.vercel-storage.com');
         blobUrlInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
+        blobUrlInput.addEventListener('textChanged', text => this.setEnvVar('NEXT_PUBLIC_BLOB_URL', text));
         //#endregion
 
         //#region - Elements -
@@ -74,9 +93,6 @@ class SetupEnvironmentPage extends BasePage {
 
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {
         switch (event) {
-            case 'status':
-                handler(true);
-                break;
             default:
                 return super.on(event, handler);
         };
@@ -84,6 +100,54 @@ class SetupEnvironmentPage extends BasePage {
 
     public off(...[ event, handler ]: Parameters<pageEventHandlers>) {
         return super.off(event, handler);
+    };
+
+    private canProceed = (): boolean =>
+        Object
+            .entries(global.envVars)
+            .every(([ key, value ], _, arr) =>
+                this.requiredVariables.includes(key) &&
+                arr.length === this.requiredVariables.length &&
+                Boolean(value)
+            );
+    
+    private toEscapedValue = (value: string): string => {
+        let out = '';
+
+        for (const ch of value) {
+            switch (ch) {
+                case '\\': out += '\\\\'; break;
+                case ' ': out += '\\ '; break;
+                case '\n': out += '\\n'; break;
+                case '\r': out += '\\r'; break;
+                case '\t': out += '\\t'; break;
+                default:
+                    out += /^[A-Za-z0-9_./:@%+=,-]$/.test(ch)
+                    ?   ch
+                    :   `\\${ ch }`;
+                    break;
+            };
+        };
+
+        return out;
+    };
+    
+    private writeEnvFile = () => {
+        fs.mkdirSync(ENV_PATH, { recursive: true });
+        fs.writeFileSync(
+            ENV_FILE,
+            Object
+                .entries(global.envVars)
+                .map(([ key, value ]) => `${ key }=${ this.toEscapedValue(value!) }`)
+                .join('\n')
+        );
+    };
+
+    private setEnvVar = (key: keyof typeof global.envVars, value: string) => {
+        global.envVars[ key ] = value;
+        const canProceed = this.canProceed();
+        if (canProceed) this.writeEnvFile();
+        this.statusEventEmitter.emit('status', canProceed);
     };
 
     public getElements = () => this.elements;

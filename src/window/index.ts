@@ -1,6 +1,19 @@
-import { AlignmentFlag, Direction, QBoxLayout, QFrame, QGridLayout, QLabel, QMainWindow, QPixmap, QPushButton, QSizePolicyPolicy, QWidget, Shadow, Shape } from '@nodegui/nodegui';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import {
+    Shape,
+    QFrame,
+    QLabel,
+    Shadow,
+    QPixmap,
+    QWidget,
+    QGridLayout,
+    QMainWindow,
+    QPushButton,
+    AlignmentFlag,
+} from '@nodegui/nodegui';
+
 import pages from '../pages/index.ts';
 import type BasePage from '../lib/basePage.ts';
 
@@ -71,7 +84,7 @@ class Window {
     changePage = (index: number) => {
         this.currentPageIndex = index;
         
-        this.nextButton.setEnabled(false);
+        //this.nextButton.setEnabled(false);
         
         if (this.currentPageWidget) {
             this.layout.removeWidget(this.currentPageWidget);

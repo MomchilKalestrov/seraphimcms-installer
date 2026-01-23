@@ -35,5 +35,9 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true
-  }
+  },
+  "exclude": [
+    "./src/copy",
+    "./dist"
+  ]
 }
