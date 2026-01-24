@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ENTRYPOINT_COMMAND = 'qode dist/main.js';
+const ENTRYPOINT_COMMAND = 'echo "hello wold"';
 const POINTER_SIZE = 8;
 const DATA_STRUCT_SIZE = 24;
 const DATA_HEADER_STRUCT_SIZE = 9;
@@ -27,58 +27,64 @@ const getAllFiles = (directoryName: string): string[] => {
     return files;
 };
 
-const ll2arr = (n: number): Uint8Array =>
-    new Uint8Array([ n >> 56, n >> 48, n >> 40, n >> 32, n >> 24, n >> 16, n >> 8, n >> 0 ]);
+
+// I'd also add these, too, but I can't,
+// since there's no integers in JS
+// n >> 32, n >> 40, n >> 48, n >> 54
+
+const ll2arr = (n: number): Uint8Array => 
+    new Uint8Array([ n >> 0, n >> 8, n >> 16, n >> 24, 0, 0, 0, 0 ]);
 
 const str2arr = (str: string): Uint8Array =>
     new Uint8Array([ ...str ].map(c => c.charCodeAt(0)));
 
-// could use a cache for faster speeds
 const getOffsetForName = (files: file[], index: number) =>
     files
         .slice(0, index)
-        .reduce<number>(
-            (curr, { name }) => curr + name.length,
-            index - 1
-        );
+        .reduce<number>((curr, { name }) => curr + name.length + 1, 0);
 
 const getNameSectionSize = (files: file[]) =>
-    files
-        .reduce<number>(
-            (curr, { name }) => curr + name.length,
-            files.length
-        );
+    files.reduce<number>((curr, { name }) => curr + name.length + 1, 0);
 
 const getOffsetForData = (files: file[], index: number) =>
     files
         .slice(0, index)
         .reduce<number>((curr, { data }) => curr + data.byteLength, 0);
 
+const headerByteLength = () =>
+    DATA_HEADER_STRUCT_SIZE + ENTRYPOINT_COMMAND.length + 1;
+
 const constructHeader = (fileCount: number): Buffer =>
-    Buffer.alloc(DATA_HEADER_STRUCT_SIZE + ENTRYPOINT_COMMAND.length + 1, new Uint8Array([
-        1,
-        ...ll2arr(fileCount),
-        ...str2arr(ENTRYPOINT_COMMAND),
-        0
+    Buffer.from(new Uint8Array([
+        1, // used
+        ...ll2arr(fileCount), // count
+        ...str2arr(ENTRYPOINT_COMMAND), // entrypoint
+        0 // NUL terminator
     ]));
 
 const constructDescriptors = (files: file[]) => {
-    const descriptorsOffset = files.length * DATA_STRUCT_SIZE;
+    const headerSize = headerByteLength();
+    const descriptorsSize = files.length * DATA_STRUCT_SIZE;
     const nameSectionSize = getNameSectionSize(files);
 
-    let buffers: Buffer[] = [];
+    const buffers: Buffer[] = [];
 
     files.forEach(({ data }, index) => {
-        const nameOffset = getOffsetForName(files, index);
-        const dataOffset = getOffsetForData(files, index);
+        const nameOffsetInNameSection = getOffsetForName(files, index);
+        const dataOffsetInDataSection = getOffsetForData(files, index);
 
-        const buffer = Buffer.alloc(DATA_STRUCT_SIZE, new Uint8Array([
-            ...ll2arr(data.length), // size
-            ...ll2arr(descriptorsOffset + nameOffset), // name pointer
-            ...ll2arr(descriptorsOffset + dataOffset + nameSectionSize) // data pointer
-        ]));
+        // Offsets from the start of the binary image
+        const filenamePtr = headerSize + descriptorsSize + nameOffsetInNameSection;
+        const dataPtr = headerSize + descriptorsSize + nameSectionSize + dataOffsetInDataSection;
 
-        buffers.push(buffer);
+        // Build descriptor as exact 24 bytes
+        const descBytes = new Uint8Array([
+            ...ll2arr(data.byteLength), // size
+            ...ll2arr(filenamePtr),     // filename pointer (offset in image)
+            ...ll2arr(dataPtr)          // data pointer (offset in image)
+        ]);
+
+        buffers.push(Buffer.from(descBytes));
     });
 
     return Buffer.concat(buffers);
@@ -89,7 +95,7 @@ const constructNameSection = (files: file[]) =>
 
 const constructDataSection = (files: file[]) =>
     Buffer.concat(files.map(({ data }) => data));
-    
+
 const main = () => {
     const files: file[] =
         getAllFiles(directoryName)
@@ -106,8 +112,6 @@ const main = () => {
     ]);
 
     fs.writeFileSync('fuckassery.bin', binary);
-    console.log('fuck')
-    console.log(binary.toString());
 };
 
 main();
