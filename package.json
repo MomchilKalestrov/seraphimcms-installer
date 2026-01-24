@@ -5,8 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "build": "tsc && rm -r ./dist/assets && cp -r ./src/assets ./dist/assets",
-        "run": "qode dist/main.js"
+        "build": "tsc && rm -rf ./dist/assets && cp -r ./src/assets ./dist/assets"
     },
     "keywords": [],
     "author": "",
@@ -18,6 +17,7 @@
     "devDependencies": {
         "@nodegui/qode": "^18.12.1",
         "@types/node": "^25.0.9",
+        "esbuild": "^0.27.2",
         "typescript": "^5.9.3"
     }
 }

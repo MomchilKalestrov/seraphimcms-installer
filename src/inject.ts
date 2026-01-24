@@ -1,0 +1,113 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const ENTRYPOINT_COMMAND = 'qode dist/main.js';
+const POINTER_SIZE = 8;
+const DATA_STRUCT_SIZE = 24;
+const DATA_HEADER_STRUCT_SIZE = 9;
+
+const directoryName: string = process.argv.pop() as string;
+
+type file = {
+    name: string;
+    data: Buffer;
+};
+
+const getAllFiles = (directoryName: string): string[] => {
+    let files: string[] = [];
+
+    (function traverse(directory: string) {
+        fs.readdirSync(directory).forEach(file => {
+            const absolute = path.join(directory, file);
+            if (fs.statSync(absolute).isDirectory()) return traverse(absolute);
+            else return files.push(absolute);
+        });
+    })(directoryName);
+
+    return files;
+};
+
+const ll2arr = (n: number): Uint8Array =>
+    new Uint8Array([ n >> 56, n >> 48, n >> 40, n >> 32, n >> 24, n >> 16, n >> 8, n >> 0 ]);
+
+const str2arr = (str: string): Uint8Array =>
+    new Uint8Array([ ...str ].map(c => c.charCodeAt(0)));
+
+// could use a cache for faster speeds
+const getOffsetForName = (files: file[], index: number) =>
+    files
+        .slice(0, index)
+        .reduce<number>(
+            (curr, { name }) => curr + name.length,
+            index - 1
+        );
+
+const getNameSectionSize = (files: file[]) =>
+    files
+        .reduce<number>(
+            (curr, { name }) => curr + name.length,
+            files.length
+        );
+
+const getOffsetForData = (files: file[], index: number) =>
+    files
+        .slice(0, index)
+        .reduce<number>((curr, { data }) => curr + data.byteLength, 0);
+
+const constructHeader = (fileCount: number): Buffer =>
+    Buffer.alloc(DATA_HEADER_STRUCT_SIZE + ENTRYPOINT_COMMAND.length + 1, new Uint8Array([
+        1,
+        ...ll2arr(fileCount),
+        ...str2arr(ENTRYPOINT_COMMAND),
+        0
+    ]));
+
+const constructDescriptors = (files: file[]) => {
+    const descriptorsOffset = files.length * DATA_STRUCT_SIZE;
+    const nameSectionSize = getNameSectionSize(files);
+
+    let buffers: Buffer[] = [];
+
+    files.forEach(({ data }, index) => {
+        const nameOffset = getOffsetForName(files, index);
+        const dataOffset = getOffsetForData(files, index);
+
+        const buffer = Buffer.alloc(DATA_STRUCT_SIZE, new Uint8Array([
+            ...ll2arr(data.length), // size
+            ...ll2arr(descriptorsOffset + nameOffset), // name pointer
+            ...ll2arr(descriptorsOffset + dataOffset + nameSectionSize) // data pointer
+        ]));
+
+        buffers.push(buffer);
+    });
+
+    return Buffer.concat(buffers);
+};
+
+const constructNameSection = (files: file[]) =>
+    Buffer.concat(files.map(({ name }) => Buffer.from(name + '\0')));
+
+const constructDataSection = (files: file[]) =>
+    Buffer.concat(files.map(({ data }) => data));
+    
+const main = () => {
+    const files: file[] =
+        getAllFiles(directoryName)
+            .map(name => ({
+                name,
+                data: fs.readFileSync(name)
+            }));
+
+    const binary = Buffer.concat([
+        constructHeader(files.length),
+        constructDescriptors(files),
+        constructNameSection(files),
+        constructDataSection(files)
+    ]);
+
+    fs.writeFileSync('fuckassery.bin', binary);
+    console.log('fuck')
+    console.log(binary.toString());
+};
+
+main();
