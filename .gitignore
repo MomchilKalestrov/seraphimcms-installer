@@ -54,6 +54,7 @@ web_modules/
 src/copy
 seraphimcms-container.tar
 scripts/dist
+payload.bin
 
 # Optional eslint cache
 .eslintcache
