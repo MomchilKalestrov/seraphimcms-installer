@@ -9,7 +9,7 @@ import pacman from './linux/pacman.ts';
 import xbpsInstall from './linux/xbps-install.ts';
 import enableDockerService from './linux/enableDockerService.ts';
 
-const packageManagers: Record<string, () => void> = {
+const packageManagers: Record<string, () => Promise<void>> = {
     apk, apt, dnf, yum, zypper, pacman, 'xbps-install': xbpsInstall
 };
 
@@ -20,7 +20,7 @@ const getPM = () =>
 const installDocker = async () => {
     const pm = getPM();
     if (!pm) throw 'Unsuported package manager!';
-    packageManagers[ pm ]!();
+    await packageManagers[ pm ]!();
     await enableDockerService();
 };
 

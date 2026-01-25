@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
+
+import { run } from '../../../lib/utils.ts';
 
 const capture = (command: string, args: string[] = []): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -45,13 +47,13 @@ const installDocker = async () => {
         return match[ 1 ]!.trim().replace(/^"|"$/g, '');
     };
 
-    spawnSync('apt', [ 'update' ]);
-    spawnSync('apt', [ 'install', '-y', 'ca-certificates', 'gnupg' ]);
+    await run('apt', [ 'update' ]);
+    await run('apt', [ 'install', '-y', 'ca-certificates', 'gnupg' ]);
 
-    spawnSync('install', [ '-m', '0755', '-d', '/etc/apt/keyrings' ]);
+    await run('install', [ '-m', '0755', '-d', '/etc/apt/keyrings' ]);
 
     const gpgKey = await fetchBuffer('https://download.docker.com/linux/ubuntu/gpg');
-    spawnSync('gpg', [ '--batch', '--dearmor', '-o', '/etc/apt/keyrings/docker.gpg' ], { input: gpgKey });
+    await run('gpg', [ '--batch', '--dearmor', '-o', '/etc/apt/keyrings/docker.gpg' ], { input: gpgKey });
 
     const arch = (await capture('dpkg', [ '--print-architecture' ])).trim();
     const codename = await getVersionCodename();
@@ -61,8 +63,8 @@ const installDocker = async () => {
 
     await fs.writeFile('/etc/apt/sources.list.d/docker.list', dockerListLine, { encoding: 'utf8' });
 
-    spawnSync('apt', [ 'update']);
-    spawnSync('apt', [ 'install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io' ]);
+    await run('apt', [ 'update']);
+    await run('apt', [ 'install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io' ]);
 };
 
 export default installDocker;

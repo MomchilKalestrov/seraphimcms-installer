@@ -112,6 +112,7 @@ class InstallDockerPage extends BasePage {
         this.installButton.setText('Please wait.');
         
         const installer = platforms[ os.platform() ];
+        
         if (!installer) {
             this.installButton.setText('Unrecognized platform!');
             return;

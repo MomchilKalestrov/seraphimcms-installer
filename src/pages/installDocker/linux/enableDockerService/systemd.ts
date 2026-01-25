@@ -1,5 +1,5 @@
-import { spawnSync } from 'node:child_process';
+import { run } from '../../../../lib/utils.ts';
 
-const enableDockerService = () => spawnSync('systemctl', [ 'enable', '--now', 'docker' ]);
+const enableDockerService = async () => void await run('systemctl', [ 'enable', '--now', 'docker' ]);
 
 export default enableDockerService;

@@ -1,8 +1,8 @@
-import { spawnSync } from 'node:child_process';
+import { run } from '../../../lib/utils.ts';
 
 const installDocker = async () => {
-	spawnSync('apk', [ 'update' ]);
-	spawnSync('apk', [ 'add', 'docker' ]);
+	await run('apk', [ 'update' ]);
+	await run('apk', [ 'add', 'docker' ]);
 };
 
 export default installDocker;

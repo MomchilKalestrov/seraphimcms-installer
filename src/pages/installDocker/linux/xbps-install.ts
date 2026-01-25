@@ -1,6 +1,6 @@
-import { spawnSync } from 'node:child_process';
+import { run } from '../../../lib/utils.ts';
 
 const installDocker = async () =>
-	spawnSync('xbps-install', [ '-S', '-y', 'docker' ], { stdio: 'inherit' });
+	void await run('xbps-install', [ '-S', '-y', 'docker' ]);
 
 export default installDocker;
