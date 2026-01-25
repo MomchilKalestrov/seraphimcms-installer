@@ -7,14 +7,15 @@
 #include <stdint.h>
 #include <string.h>
 
-typedef struct __attribute__((__packed__)) {
+typedef struct __attribute__((__packed__)) data_header {
     bool used;
     size_t count;
     char entrypoint;
 } data_header_t;
 
-typedef struct __attribute__((__packed__)) {
+typedef struct __attribute__((__packed__)) data {
     size_t size;
+    uint8_t permissions;
     char *filename;
     uint8_t *data;
 } data_t;

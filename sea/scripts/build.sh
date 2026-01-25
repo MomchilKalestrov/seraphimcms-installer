@@ -9,7 +9,6 @@ if [ $? -ne 0 ]; then
 fi
 
 BASEDIR=$(dirname $0)/..
-echo $BASEDIR
 
 mkdir -p $BASEDIR/build
 

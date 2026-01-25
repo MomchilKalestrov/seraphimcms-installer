@@ -1,10 +1,7 @@
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 #include "./data/data.h"
 #include "./mkdir/mkdir.h"
@@ -17,9 +14,9 @@ void extract_files(const data_t *files, size_t count) {
         ensure_parent_dirs((char *)absolute_name_ptr);
 
         printf("files[ %d ].filename is %s\n", i, absolute_name_ptr);
+        printf("files[ %d ].permissions is %o\n", i, files[ i ].permissions);
         printf("files[ %d ].size is %d\n", i, files[ i ].size);
-        //fwrite((void *)absolute_data_ptr, 1, files[ i ].size, stdout);
-        printf("\n---\n");
+        printf("---\n");
 
         FILE *fptr = fopen((char *)absolute_name_ptr, "wb");
 
@@ -34,6 +31,14 @@ void extract_files(const data_t *files, size_t count) {
             files[ i ].size,           // length of data to write
             fptr                       // file pointer
         );
+        #ifdef __linux__
+        chmod(
+            (char *)absolute_name_ptr,
+            files[ i ].permissions |
+            files[ i ].permissions << 3 |
+            files[ i ].permissions << 6
+        );
+        #endif
         fclose(fptr);
     };
 };
@@ -54,6 +59,4 @@ void main() {
     extract_files(files, header->count);
     
     system(&header->entrypoint);
-
-    scanf("%s", NULL);
 }

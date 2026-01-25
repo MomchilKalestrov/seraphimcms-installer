@@ -1,13 +1,28 @@
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
 const ENTRYPOINT_COMMAND = 'dist/qode dist/main.js';
-const DATA_STRUCT_SIZE = 24;
+const DATA_STRUCT_SIZE = 25;
 const DATA_HEADER_STRUCT_SIZE = 9;
 
 type file = {
     name: string;
     data: Buffer;
+    permissions: number;
+};
+
+type dependencies = Record<string, {
+    version?: string;
+    resolved?: string;
+    overwridden?: false;
+    dependencies?: dependencies;
+}>;
+
+type npmListResult = {
+    version: string;
+    name: string;
+    dependencies: dependencies;
 };
 
 const getAllFiles = (directoryName: string): string[] => {
@@ -66,7 +81,7 @@ const constructDescriptors = (files: file[]) => {
 
     const buffers: Buffer[] = [];
 
-    files.forEach(({ data }, index) => {
+    files.forEach(({ data, permissions }, index) => {
         const nameOffsetInNameSection = getOffsetForName(files, index);
         const dataOffsetInDataSection = getOffsetForData(files, index);
 
@@ -77,6 +92,7 @@ const constructDescriptors = (files: file[]) => {
         // Build descriptor as exact 24 bytes
         const descBytes = new Uint8Array([
             ...ll2arr(data.byteLength), // size
+            permissions,                // permissions
             ...ll2arr(filenamePtr),     // filename pointer (offset in image)
             ...ll2arr(dataPtr)          // data pointer (offset in image)
         ]);
@@ -93,19 +109,71 @@ const constructNameSection = (files: file[]) =>
 const constructDataSection = (files: file[]) =>
     Buffer.concat(files.map(({ data }) => data));
 
-const copyDependencies = () => {
-    fs.cpSync('node_modules', 'dist/node_modules', { recursive: true });
+const copyDependencies = (dependencies: Set<string>) => {
+    dependencies.forEach(dependency => {
+        try {
+            fs.cpSync(
+                'node_modules/' + dependency,
+                'dist/node_modules/ ' + dependency,
+                { recursive: true }
+            )
+        } catch {
+            console.warn('WARNING: Failed to copy module ' + dependency)
+        };
+    });
     fs.copyFileSync('node_modules/@nodegui/qode/binaries/qode', 'dist/qode');
 };
 
+const hasPermission = (filename: string, permission: number) => {
+    try {
+        fs.accessSync(filename, permission);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+const getPermissions = (filename: string) => {
+    const permissions = [ fs.constants.X_OK, fs.constants.W_OK, fs.constants.R_OK ];
+    let flags: number = 0;
+    permissions.forEach((permission, index) => {
+        if (hasPermission(filename, permission))
+            flags |= 1 << index;
+        else
+            flags &= 0xff ^ 1 << index;
+    });
+    return flags;
+};
+
+const resolveDependencies = () => {
+    const rawDeps = spawnSync('npm', [ 'list', '--omit=dev', '--json', '--all' ]).stdout.toString();
+    const deps = JSON.parse(rawDeps) as npmListResult;
+
+    const dependencies = new Set<string>();
+
+    const extractDependencies = (node: dependencies, deps: Set<string>) =>
+        Object.entries(node ?? {})
+            .forEach(([ key, value ]) => {
+                if (Object.keys(value).length === 0) return;
+                if (value.dependencies)
+                    extractDependencies(value.dependencies, deps);
+                deps.add(key);
+            });
+    
+    extractDependencies(deps.dependencies, dependencies);
+
+    return dependencies;
+};
+
 const main = () => {
-    //copyDependencies();
+    copyDependencies(resolveDependencies());
 
     const files: file[] =
         getAllFiles('dist')
             .map(name => ({
                 name,
-                data: fs.readFileSync(name)
+                data: fs.readFileSync(name),
+                permissions: getPermissions(name)
             }));
 
     const binary = Buffer.concat([
@@ -116,6 +184,8 @@ const main = () => {
     ]);
 
     fs.writeFileSync('payload.bin', binary);
+
+    console.log('Payload created with size: ' + binary.byteLength);
 };
 
 main();
