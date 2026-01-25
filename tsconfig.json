@@ -8,9 +8,9 @@
     "target": "esnext",
     "lib": ["esnext"],
     "types": ["node"],
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "sourceMap": false,
+    "declaration": false,
+    "declarationMap": false,
     "moduleResolution": "nodenext",
 
     // Stricter Typechecking Options
@@ -37,7 +37,7 @@
     "rewriteRelativeImportExtensions": true
   },
   "exclude": [
-    "./src/copy",
+    "./scripts",
     "./dist"
   ]
 }

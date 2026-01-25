@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ENTRYPOINT_COMMAND = 'echo "hello wold"';
-const POINTER_SIZE = 8;
+const ENTRYPOINT_COMMAND = 'dist/qode dist/main.js';
 const DATA_STRUCT_SIZE = 24;
 const DATA_HEADER_STRUCT_SIZE = 9;
 
@@ -111,7 +110,7 @@ const main = () => {
         constructDataSection(files)
     ]);
 
-    fs.writeFileSync('fuckassery.bin', binary);
+    fs.writeFileSync('blob.bin', binary);
 };
 
 main();
