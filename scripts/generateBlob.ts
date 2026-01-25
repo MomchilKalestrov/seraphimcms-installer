@@ -5,8 +5,6 @@ const ENTRYPOINT_COMMAND = 'dist/qode dist/main.js';
 const DATA_STRUCT_SIZE = 24;
 const DATA_HEADER_STRUCT_SIZE = 9;
 
-const directoryName: string = process.argv.pop() as string;
-
 type file = {
     name: string;
     data: Buffer;
@@ -95,9 +93,16 @@ const constructNameSection = (files: file[]) =>
 const constructDataSection = (files: file[]) =>
     Buffer.concat(files.map(({ data }) => data));
 
+const copyDependencies = () => {
+    fs.cpSync('node_modules', 'dist/node_modules', { recursive: true });
+    fs.copyFileSync('node_modules/@nodegui/qode/binaries/qode', 'dist/qode');
+};
+
 const main = () => {
+    copyDependencies();
+
     const files: file[] =
-        getAllFiles(directoryName)
+        getAllFiles('dist')
             .map(name => ({
                 name,
                 data: fs.readFileSync(name)
@@ -110,7 +115,7 @@ const main = () => {
         constructDataSection(files)
     ]);
 
-    fs.writeFileSync('blob.bin', binary);
+    fs.writeFileSync('payload.bin', binary);
 };
 
 main();

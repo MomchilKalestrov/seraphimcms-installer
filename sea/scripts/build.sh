@@ -1,13 +1,17 @@
 #!/bin/bash
 
+
 which gcc > /dev/null
 if [ $? -ne 0 ]; then
     echo "GCC not found!"
     exit
 fi
 
-mkdir -p build 
+BASEDIR=$(dirname $0)/..
+echo $BASEDIR
 
-gcc -T src/linker.ld -c src/main.c -o build/a.o
-gcc build/a.o -o build/out
-chmod +x build/out
+mkdir -p $BASEDIR/build 
+
+gcc -T $BASEDIR/src/linker.ld -c $BASEDIR/src/main.c -o $BASEDIR/build/a.o
+gcc $BASEDIR/build/a.o -o $BASEDIR/build/out
+chmod +x $BASEDIR/build/out
