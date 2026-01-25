@@ -99,7 +99,7 @@ const copyDependencies = () => {
 };
 
 const main = () => {
-    copyDependencies();
+    //copyDependencies();
 
     const files: file[] =
         getAllFiles('dist')

@@ -11,10 +11,15 @@
 
 void extract_files(const data_t *files, size_t count) {
     for (size_t i = 0; i < count; i++) {
-        uintptr_t absolute_name_ptr = (uintptr_t)&__payload + (uintptr_t)files[ i ].filename;
-        uintptr_t absolute_data_ptr = (uintptr_t)&__payload + (uintptr_t)files[ i ].data;
+        uintptr_t absolute_name_ptr = (uintptr_t)&__start_payload + (uintptr_t)files[ i ].filename;
+        uintptr_t absolute_data_ptr = (uintptr_t)&__start_payload + (uintptr_t)files[ i ].data;
 
         ensure_parent_dirs((char *)absolute_name_ptr);
+
+        printf("files[ %d ].filename is %s\n", i, absolute_name_ptr);
+        printf("files[ %d ].size is %d\n", i, files[ i ].size);
+        //fwrite((void *)absolute_data_ptr, 1, files[ i ].size, stdout);
+        printf("\n---\n");
 
         FILE *fptr = fopen((char *)absolute_name_ptr, "wb");
 
@@ -39,8 +44,16 @@ void main() {
         printf("Payload missing. Aborting");
         exit(0);
     }
+
+    printf("header is %p\n", header);
+    printf("header->count is %d\n", header->count);
+    printf("header->entrypoint is %s\n", &header->entrypoint);
+    printf("--\n");
+
     const data_t *files = get_data();
     extract_files(files, header->count);
     
     system(&header->entrypoint);
+
+    scanf("%s", NULL);
 }
