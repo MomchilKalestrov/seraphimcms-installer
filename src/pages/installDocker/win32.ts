@@ -14,10 +14,25 @@ const downloadDockerDesktop = (): Promise<void> =>
         });
     });
 
+
+const enableDockerService = () => {
+    const { error } = spawnSync('schtasks', [
+        '/Create', 
+        '/TN', '"DockerDesktopAutostart"',
+        '/TR', '"\\"C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe\\""',
+        '/SC', 'ONSTART',
+        '/RU', 'SYSTEM',
+        '/RL', 'HIGHEST',
+        '/F'
+    ]);
+    
+    if (error) throw error.message;
+};
+
 const installDocker = async () => {
     await downloadDockerDesktop();
-
     spawnSync(FILENAME, [ 'install', '--accept-license', '--backend=wsl-2', '--always-run-service' ]);
+    enableDockerService();
 };
 
 export default installDocker;

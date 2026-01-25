@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 
 import {
@@ -7,7 +8,6 @@ import {
     Direction,
     QBoxLayout,
     QProgressBar,
-    AlignmentFlag
 } from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
@@ -91,13 +91,15 @@ class SetupContainerPage extends BasePage {
                 this.status.setText('Exposing port...');
                 exposePort();
                 
-                this.status.setText('Enabling on startup...');
-                enableAutoStartService();
+                if (os.platform() !== 'win32') {
+                    this.status.setText('Enabling on startup...');
+                    enableAutoStartService();
+                };
                 
                 this.status.setText('Done!');
                 this.statusEventEmitter.emit('status', true);
             })
-            .catch(error => this.status.setText('Error: ' + error.message));
+            .catch(error => this.status.setText('Error: ' + (error.message ?? error)));
     };
 
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {

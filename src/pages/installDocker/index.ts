@@ -1,7 +1,16 @@
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 
-import { AlignmentFlag, Direction, QBoxLayout, QLabel, QPushButton, QSizePolicyPolicy, QWidget, TextFormat } from '@nodegui/nodegui';
+import {
+    QLabel,
+    QWidget,
+    Direction,
+    QBoxLayout,
+    TextFormat,
+    QPushButton,
+    AlignmentFlag,
+    QSizePolicyPolicy
+} from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
 
@@ -100,6 +109,7 @@ class InstallDockerPage extends BasePage {
 
     private installDocker = () => {
         this.installButton.setDisabled(true);
+        this.installButton.setText('Please wait.');
         
         const installer = platforms[ os.platform() ];
         if (!installer) {
@@ -108,7 +118,10 @@ class InstallDockerPage extends BasePage {
         };
 
         installer()
-            .then(() => this.statusEventEmitter.emit('status', true))
+            .then(() => {
+                this.statusEventEmitter.emit('status', true);
+                this.installButton.setText('Done!');
+            })
             .catch(error => this.installButton.setText(error + '\nInstall and enable Docker manually.'));
     };
 };

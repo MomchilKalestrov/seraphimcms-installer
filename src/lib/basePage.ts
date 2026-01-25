@@ -1,5 +1,6 @@
-import { QWidget } from '@nodegui/nodegui';
 import EventEmitter from 'node:events';
+
+import { QWidget } from '@nodegui/nodegui';
 
 class BasePage implements IPage {
     protected statusEventEmitter: EventEmitter;

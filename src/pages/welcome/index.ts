@@ -7,9 +7,11 @@ import {
 } from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
+import isRoot from '../../lib/isRoot.ts';
 
 class WelcomePage extends BasePage {
     private elements: QWidget;
+    private isRoot: boolean = isRoot();
     
     constructor() {
         super();
@@ -24,22 +26,31 @@ class WelcomePage extends BasePage {
         const text = new QLabel();
         text.setTextFormat(TextFormat.RichText);
         text.setOpenExternalLinks(true);
-        text.setText(/*html*/
-            `<p>
-                Welcome to the SeraphimCMS installer wizzard.<br />
-                SeraphimCMS is a self-hosted website builder. This tool is<br />
-                meant to help the initial setup.
-            </p>
-            <p>
-                The project, along with this installer, is licensed under<br />
-                GPLv3. The developers of SeraphimCMS bear no<br />
-                responsability for any damages occured during the use of<br />
-                SeraphimCMS. You can read the license here:
-            </p>
-            <p>
-                <a href="https://https://www.gnu.org/licenses/gpl-3.0.en.html">https://www.gnu.org/licenses/gpl-3.0.en.html</a>
-            </p>`
-        );
+        if (!this.isRoot)
+            text.setText(/*html*/
+                `<p>
+                    Sorry, but this program requires elevated privilidges.<br />
+                    Please try running as administrator if you're on Windows<br />
+                    or with sudo if you're on Linux.
+                </p>`
+            );
+        else
+            text.setText(/*html*/
+                `<p>
+                    Welcome to the SeraphimCMS installer wizzard.<br />
+                    SeraphimCMS is a self-hosted website builder. This tool is<br />
+                    meant to help the initial setup.
+                </p>
+                <p>
+                    The project, along with this installer, is licensed under<br />
+                    GPLv3. The developers of SeraphimCMS bear no<br />
+                    responsability for any damages occured during the use of<br />
+                    SeraphimCMS. You can read the license here:
+                </p>
+                <p>
+                    <a href="https://https://www.gnu.org/licenses/gpl-3.0.en.html">https://www.gnu.org/licenses/gpl-3.0.en.html</a>
+                </p>`
+            );
         //#endregion
 
         //#region - Elements -
@@ -55,7 +66,7 @@ class WelcomePage extends BasePage {
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {
         switch (event) {
             case 'status':
-                handler(true);
+                handler(this.isRoot);
                 break;
             default:
                 return super.on(event, handler);

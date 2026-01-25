@@ -1,9 +1,6 @@
 import fs from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 
-import enableDockerService from './enableDockerService.ts';
-
-
 const capture = (command: string, args: string[] = []): Promise<string> =>
     new Promise((resolve, reject) => {
         const child = spawn(command, args, {
@@ -19,10 +16,8 @@ const capture = (command: string, args: string[] = []): Promise<string> =>
         child.stderr.on('data', (chunk: Buffer) => stderrChunks.push(chunk));
 
         child.on('close', (code: number | null) => {
-            if (code === 0) {
-                resolve(Buffer.concat(stdoutChunks).toString('utf8'));
-                return;
-            };
+            if (code === 0)
+                return resolve(Buffer.concat(stdoutChunks).toString('utf8'));
 
             const stderr = Buffer.concat(stderrChunks).toString('utf8');
             reject(new Error(`Command failed (${ code ?? 'null' }): ${ command } ${ args.join(' ') }\n${ stderr }`));
@@ -68,8 +63,6 @@ const installDocker = async () => {
 
     spawnSync('apt', [ 'update']);
     spawnSync('apt', [ 'install', '-y', 'docker-ce', 'docker-ce-cli', 'containerd.io' ]);
-
-    await enableDockerService();
 };
 
 export default installDocker;
