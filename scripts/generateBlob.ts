@@ -1,8 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 
-const ENTRYPOINT_COMMAND = 'dist/qode dist/main.js';
+const ENTRYPOINT_COMMAND = 'pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js';
 const DATA_STRUCT_SIZE = 25;
 const DATA_HEADER_STRUCT_SIZE = 9;
 
@@ -25,6 +26,13 @@ type npmListResult = {
     dependencies: dependencies;
 };
 
+const getCertainKeys = (obj: any, ...keys: string[]) =>
+    Object.entries(obj).reduce<any>((result, [ key, value ]) => {
+        if (keys.includes(key))
+            result[ key ] = value;
+        return result;
+    }, {});
+
 const getAllFiles = (directoryName: string): string[] => {
     let files: string[] = [];
 
@@ -40,9 +48,18 @@ const getAllFiles = (directoryName: string): string[] => {
 };
 
 
-// I'd also add these, too, but I can't,
-// since there's no integers in JS
-// n >> 32, n >> 40, n >> 48, n >> 54
+const removeFilesWithExtension = (dir: string, ext: string) => {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+
+        if (entry.isDirectory())
+            removeFilesWithExtension(fullPath, ext);
+        else if (entry.isFile() && fullPath.endsWith(ext))
+            fs.unlinkSync(fullPath);
+    }
+}
 
 const ll2arr = (n: number): Uint8Array => 
     new Uint8Array([ n >> 0, n >> 8, n >> 16, n >> 24, 0, 0, 0, 0 ]);
@@ -114,14 +131,31 @@ const copyDependencies = (dependencies: Set<string>) => {
         try {
             fs.cpSync(
                 'node_modules/' + dependency,
-                'dist/node_modules/ ' + dependency,
+                'dist/node_modules/' + dependency,
                 { recursive: true }
             )
         } catch {
             console.warn('WARNING: Failed to copy module ' + dependency)
         };
     });
-    fs.copyFileSync('node_modules/@nodegui/qode/binaries/qode', 'dist/qode');
+    
+    if (os.platform() === 'win32')
+        fs.copyFileSync('node_modules/@nodegui/qode/binaries/qode.exe', 'dist/qode.exe');
+    else {
+        fs.copyFileSync('node_modules/@nodegui/qode/binaries/qode', 'dist/qode');
+        fs.chmodSync('dist/qode', 0o755);
+    };
+
+    // nodejs/ qodejs throws if we don't specifically have a package.json with "type": "module"
+    const packageJson = JSON.parse(fs.readFileSync('package.json').toString());
+    fs.writeFileSync(
+        'dist/package.json',
+        JSON.stringify(
+            getCertainKeys(packageJson, 'name', 'author', 'license', 'version', 'main', 'type'),
+            null,
+            '\t'
+        )
+    );
 };
 
 const hasPermission = (filename: string, permission: number) => {
@@ -168,6 +202,10 @@ const resolveDependencies = () => {
 const main = () => {
     copyDependencies(resolveDependencies());
 
+    // some files are not needed. For example C headers or .d.ts files
+    for (const extension of [ '.d.ts', '.map', '.h', '.cmake', '.md',  ])
+        removeFilesWithExtension('./dist', extension);
+
     const files: file[] =
         getAllFiles('dist')
             .map(name => ({
@@ -185,7 +223,15 @@ const main = () => {
 
     fs.writeFileSync('payload.bin', binary);
 
-    console.log('Payload created with size: ' + binary.byteLength);
+    
+    const toShorten = (value: number) => {
+        const units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
+        for (var i = 0; value > 1024 && i < units.length; i++)
+            value /= 1024;
+        return Math.floor(value) + ' ' + units[ i ];
+    };
+
+    console.log('Payload created with size: ' + toShorten(binary.byteLength));
 };
 
 main();

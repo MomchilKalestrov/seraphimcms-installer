@@ -1,8 +1,8 @@
 {
-    "name": "tauri-app",
+    "name": "seraphimcms-installer",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "dist/main.js",
     "type": "module",
     "scripts": {
         "compile-scripts": "tsc ./scripts/*.ts --target esnext --module nodenext --allowSyntheticDefaultImports --outdir ./scripts/dist",
@@ -10,11 +10,12 @@
         "blob": "npm-run-all build compile-scripts && rm -f payload.bin && node scripts/dist/generateBlob.js",
         "build-sea:linux": "npm-run-all blob && ./sea/scripts/build.sh payload.bin",
         "publish:linux": "npm-run-all build-sea:linux && mkdir -p publish && cp sea/build/out publish/installer",
-        "dev": "run-s build && qode dist/main.js"
+        "dev": "run-s build && qode dist/main.js",
+        "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js"
     },
     "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "author": "Momchil Kalestrov",
+    "license": "GPL-3.0-only",
     "dependencies": {
         "@nodegui/nodegui": "^0.73.0",
         "@nodegui/qode": "^18.12.1",

@@ -1,5 +1,4 @@
 import os from 'node:os';
-import { spawnSync } from 'node:child_process';
 
 import { getInit } from '../../lib/utils.ts';
 

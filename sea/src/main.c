@@ -3,6 +3,10 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifdef __linux__
+#include <sys/stat.h>
+#endif
+
 #include "./data/data.h"
 #include "./mkdir/mkdir.h"
 

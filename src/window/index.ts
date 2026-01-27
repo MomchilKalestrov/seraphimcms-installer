@@ -13,6 +13,7 @@ import {
     QPushButton,
     AlignmentFlag,
     QIcon,
+    QApplication
 } from '@nodegui/nodegui';
 
 import pages from '../pages/index.ts';
@@ -32,6 +33,7 @@ class Window {
     private currentPageWidget: QWidget | undefined;
     
     constructor () {
+        //#region - Window -
         this.window = new QMainWindow();
         this.window.setWindowTitle('SeraphimCMS Installer');
         const iconPath = path.resolve(__dirname, '..', 'assets', 'icon.ico');
@@ -41,6 +43,10 @@ class Window {
         this.window.setFixedSize(600, 400);
         this.centralWidget = new QWidget();
         this.window.setCentralWidget(this.centralWidget);
+        const font = this.window.font();
+        font.setPointSize(11);
+        this.window.setFont(font);
+        //#endregion
 
         //#region - Banner -
         const banner = new QLabel();
