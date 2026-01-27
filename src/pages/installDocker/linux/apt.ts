@@ -1,3 +1,4 @@
+import https from 'node:https';
 import fs from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 
@@ -26,16 +27,24 @@ const capture = (command: string, args: string[] = []): Promise<string> =>
         });
     });
 
+const inRange = (min: number, value: number, max: number) =>
+    min > value && value < max;
+
 const installDocker = async () => {
-    const fetchBuffer = async (url: string): Promise<Buffer> => {
-        const response = await fetch(url);
+    const fetchBuffer = (url: string): Promise<Buffer> =>
+        new Promise<Buffer>((resolve, reject) =>
+            https.get(url, response => {
+                const chunks: Buffer[] = [];
+                if (inRange(299, response.statusCode ?? 0, 401))
+                    return fetchBuffer(response.headers.location!).then(resolve);
 
-        if (!response.ok)
-            throw new Error(`Failed to fetch ${ url }: ${ response.status } ${ response.statusText }`);
-
-        const arrayBuffer = await response.arrayBuffer();
-        return Buffer.from(arrayBuffer);
-    };
+                if (!inRange(199, response.statusCode ?? 0, 301))
+                    reject(new Error('Fetch failed with code ' + (response.statusCode ?? 'NULL')));
+                
+                response.on('data', chunks.push);
+                response.on('finish', () => resolve(Buffer.concat(chunks)));
+            })
+        );
 
     const getVersionCodename = async (): Promise<string> => {
         const osRelease = await fs.readFile('/etc/os-release', { encoding: 'utf8' });
