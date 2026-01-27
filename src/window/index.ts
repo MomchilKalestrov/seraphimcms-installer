@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
     Shape,
+    QIcon,
     QFrame,
     QLabel,
     Shadow,
@@ -12,8 +13,7 @@ import {
     QMainWindow,
     QPushButton,
     AlignmentFlag,
-    QIcon,
-    QApplication
+    QFontDatabase
 } from '@nodegui/nodegui';
 
 import pages from '../pages/index.ts';
@@ -35,6 +35,7 @@ class Window {
     constructor () {
         //#region - Window -
         this.window = new QMainWindow();
+        this.window.winId();
         this.window.setWindowTitle('SeraphimCMS Installer');
         const iconPath = path.resolve(__dirname, '..', 'assets', 'icon.ico');
         const iconPixmap = new QPixmap();
@@ -97,7 +98,7 @@ class Window {
     changePage = (index: number) => {
         this.currentPageIndex = index;
         
-        //this.nextButton.setEnabled(false);
+        this.nextButton.setEnabled(false);
         
         if (this.currentPageWidget) {
             this.layout.removeWidget(this.currentPageWidget);

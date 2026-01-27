@@ -203,7 +203,28 @@ const main = () => {
     copyDependencies(resolveDependencies());
 
     // some files are not needed. For example C headers or .d.ts files
-    for (const extension of [ '.d.ts', '.map', '.h', '.cmake', '.md',  ])
+    const extensionsToOmit = [
+        '.d.ts',
+        '.d.mts',
+        '.map',
+        '.cmake',
+        '.h',
+        '.c',
+        '.hpp',
+        '.cpp',
+        '.cc',
+        '.md',
+        '.markdown',
+        '.txt',
+        '.yml',
+        '.sh',
+        'BSD',
+        'MIT',
+        'LICENSE',
+        'APACHE2',
+        'AUTHORTS',
+    ];
+    for (const extension of extensionsToOmit)
         removeFilesWithExtension('./dist', extension);
 
     const files: file[] =
