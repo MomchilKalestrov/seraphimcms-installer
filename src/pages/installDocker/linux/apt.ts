@@ -30,21 +30,23 @@ const capture = (command: string, args: string[] = []): Promise<string> =>
 const inRange = (min: number, value: number, max: number) =>
     min > value && value < max;
 
-const installDocker = async () => {
-    const fetchBuffer = (url: string): Promise<Buffer> =>
-        new Promise<Buffer>((resolve, reject) =>
-            https.get(url, response => {
-                const chunks: Buffer[] = [];
-                if (inRange(299, response.statusCode ?? 0, 401))
-                    return fetchBuffer(response.headers.location!).then(resolve);
+const fetchBuffer = (url: string): Promise<Buffer> =>
+    new Promise<Buffer>((resolve, reject) => {
+        const request = https.get(url, response => {
+            const chunks: Buffer[] = [];
+            if (inRange(299, response.statusCode ?? 0, 401))
+                return fetchBuffer(response.headers.location!).then(resolve);
 
-                if (!inRange(199, response.statusCode ?? 0, 301))
-                    reject(new Error('Fetch failed with code ' + (response.statusCode ?? 'NULL')));
-                
-                response.on('data', chunks.push);
-                response.on('finish', () => resolve(Buffer.concat(chunks)));
-            })
-        );
+            if (!inRange(199, response.statusCode ?? 0, 301))
+                return reject(new Error('Fetch failed with code ' + (response.statusCode ?? 'NULL')));
+            
+            response.on('data', chunks.push);
+            response.on('finish', () => resolve(Buffer.concat(chunks)));
+        });
+        request.on('error', reject);
+    });
+
+const installDocker = async () => {
 
     const getVersionCodename = async (): Promise<string> => {
         const osRelease = await fs.readFile('/etc/os-release', { encoding: 'utf8' });
