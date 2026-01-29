@@ -14,7 +14,7 @@ export const run = (command: string, args: string[], options: SpawnOptions & { i
         const { input, ...spawnOptions } = options;
         const process = spawn(command, args, {
             stdio: input ? [ 'pipe', 'inherit', 'inherit' ] : 'inherit',
-            ...spawnOptions,
+            ...spawnOptions
         });
 
         if (input) {
@@ -26,6 +26,6 @@ export const run = (command: string, args: string[], options: SpawnOptions & { i
         process.on('close', code => {
             console.log([ command, ...args ].join(' ') + ' exited with code ' + code);
             if (code === 0) resolve(code);
-            else reject(new Error('> Process ' + command + ' exited with ' + code));
+            else reject(new Error('Process ' + command + ' exited with ' + code));
         });
     });
