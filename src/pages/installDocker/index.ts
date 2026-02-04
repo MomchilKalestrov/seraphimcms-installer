@@ -107,19 +107,18 @@ class InstallDockerPage extends BasePage {
 
     public getElements = () => this.elements;
 
-    private installDocker = async () => {
+    private installDocker = () => {
         this.installButton.setDisabled(true);
         this.installButton.setText('Please wait...');
         
         const installer = platforms[ os.platform() ];
         
-        try {
-            await installer!();
-            this.statusEventEmitter.emit('status', true);
-            this.installButton.setText('Done!');
-        } catch (error) {
-            this.installButton.setText(error + '\nInstall and enable Docker manually.');
-        };
+        installer!()
+            .then(() => {
+                this.statusEventEmitter.emit('status', true);
+                this.installButton.setText('Done!');
+            })
+            .catch(error => this.installButton.setText('Error:\n' + (error.message ?? error) + '\nInstall and enable Docker manually.'));
     };
 };
 

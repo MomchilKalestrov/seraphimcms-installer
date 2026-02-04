@@ -136,7 +136,7 @@ class CreateUserPage extends BasePage {
                 this.generateUserButton.setText('Done!');
                 this.statusEventEmitter.emit('status', true);
             })
-            .catch(() => this.generateUserButton.setText('Failed!'));
+            .catch(error => this.generateUserButton.setText('Error:\n' + (error.message ?? error)));
     };
 
     public getElements = () => this.elements;

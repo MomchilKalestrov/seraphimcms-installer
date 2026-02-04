@@ -222,7 +222,7 @@ const main = () => {
         'MIT',
         'LICENSE',
         'APACHE2',
-        'AUTHORTS',
+        'AUTHORTS'
     ];
     for (const extension of extensionsToOmit)
         removeFilesWithExtension('./dist', extension);

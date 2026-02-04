@@ -99,7 +99,7 @@ class SetupContainerPage extends BasePage {
                 this.status.setText('Done!');
                 this.statusEventEmitter.emit('status', true);
             })
-            .catch(error => this.status.setText('Error: ' + (error.message ?? error)));
+            .catch(error => this.status.setText('Error:\n' + (error.message ?? error)));
     };
 
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {
