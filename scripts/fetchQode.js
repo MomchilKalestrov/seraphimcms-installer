@@ -2,15 +2,23 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import https from 'node:https';
+import { spawnSync } from 'node:child_process';
 import supportedPlatforms from './supportedPlatforms.js';
 
 if (!supportedPlatforms.includes(os.platform())) throw new Error('Unsupported platform!');
 
+const QODE_DESTINATION = os.platform() === 'win32' ? 'dist/qode.exe' : 'dist/qode';
 const OWNER = 'MomchilKalestrov';
 const REPO = 'qodejs';
 
-/** @type { () => Promise<string> } */
-const getDownloadUrl = async () => {
+/**
+ * @typedef { object } release
+ * @property { ({ name: string; browser_download_url: string; })[] } assets
+ * @property { string } tag_name 
+ */
+
+/** @returns { Promise<{ downloadUrl: string; version: number[] }> } */
+const getSource = async () => {
     const response = await fetch(`https://api.github.com/repos/${ OWNER }/${ REPO }/releases/latest`, {
         headers: {
             'Accept': 'application/vnd.github+json',
@@ -19,19 +27,28 @@ const getDownloadUrl = async () => {
 
     if (!response.ok) throw 'Failed to download the Qode.JS runtime.';
 
-    /** @type { { assets: ({ name: string; browser_download_url: string; })[]; } } */
-    const { assets } = await response.json();
-
-    const asset = assets.find(({ name }) => name.includes(os.platform()));
-
+    /** @type { release } */
+    const data = await response.json();
+    
     // the right size of the null coalesing won't ever be reached
     // but it's required otherwise the TS checker complains :)
-    return asset?.browser_download_url ?? '';
+    const downloadUrl = data.assets.find(({ name }) => name.includes(os.platform()))?.browser_download_url ?? '';
+
+
+    return {
+        downloadUrl,
+        version: data.tag_name.substring(1).split('-')[ 0 ].split('.').map(Number)
+    };
 };
 
-/** @type { (url: string, path: string) => Promise<void> } */
+
+/**
+ * @param { string } url
+ * @param { string } path
+ * @returns { Promise<void> }
+ */
 const download = (url, path) =>
-    /** @type {Promise<void>} */
+    /** @type { Promise<void> } */
     new Promise((resolve, reject) => {
         https.get(url, response => {
             if ((response.statusCode ?? 0) >= 300 && (response.statusCode ?? 0) <= 399)
@@ -47,16 +64,44 @@ const download = (url, path) =>
         });
     });
 
+/**
+ * @param { number[] } currentVersion
+ * @param { number[] } newVersion
+ * @returns { boolean }
+ */
+const shouldFetchNewVersion = (currentVersion, newVersion) => {
+    for (let i = 0; i < 3; i++)
+        if (currentVersion[ i ] < newVersion[ i ])
+            return true;
+    return false;
+};
+
+/**
+ * @returns { number[] } 
+ */
+const getCurrentVersion = () =>
+    spawnSync(QODE_DESTINATION, [ '--version' ])
+        .output
+        .toString()
+        .substring(1)
+        .split('.')
+        .map(Number);
+
 const main = async () => {
-    fs.mkdirSync('dist', { recursive: true });
+    const { downloadUrl, version: newVersion } = await getSource();
+
+    if (
+        fs.existsSync(QODE_DESTINATION) &&
+        !shouldFetchNewVersion(getCurrentVersion(), newVersion)
+    ) return;
 
     await download(
-        await getDownloadUrl(),
-        os.platform() === 'win32' ? 'dist/qode.exe' : 'dist/qode'
+        downloadUrl,
+        QODE_DESTINATION
     );
 
     if (os.platform() !== 'win32')
-        fs.chmodSync('dist/qode', 0o755);
+        fs.chmodSync(QODE_DESTINATION, 0o755);
 
     process.exit(0);
 };

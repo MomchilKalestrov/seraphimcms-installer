@@ -211,7 +211,7 @@ const hasPermission = (filename, permission) => {
         return true;
     } catch {
         return false;
-    }
+    };
 };
 
 /**
@@ -261,6 +261,7 @@ const main = () => {
     copyDependencies(resolveDependencies());
 
     // some files are not needed. For example C headers or .d.ts files
+    /** @type { string[] } */
     const extensionsToOmit = [
         '.d.ts',
         '.d.mts',
@@ -282,6 +283,7 @@ const main = () => {
         'APACHE2',
         'AUTHORTS'
     ];
+
     for (const extension of extensionsToOmit)
         removeFilesWithExtension('./dist', extension);
 
@@ -303,8 +305,12 @@ const main = () => {
 
     fs.writeFileSync('payload.bin', binary);
 
-    /** @param { number } value */
+    /**
+     * @param { number } value
+     * @returns { string }
+     */
     const toShorten = value => {
+        /** @type { string[] } */
         const units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
         for (var i = 0; value > 1024 && i < units.length; i++)
             value /= 1024;
