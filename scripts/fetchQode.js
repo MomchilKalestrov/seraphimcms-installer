@@ -7,7 +7,7 @@ import supportedPlatforms from './supportedPlatforms.js';
 
 if (!supportedPlatforms.includes(os.platform())) throw new Error('Unsupported platform!');
 
-const QODE_DESTINATION = os.platform() === 'win32' ? 'dist/qode.exe' : 'dist/qode';
+const QODE_DESTINATION = os.platform() === 'win32' ? 'dist\\qode.exe' : 'dist/qode';
 const OWNER = 'MomchilKalestrov';
 const REPO = 'qodejs';
 
@@ -40,7 +40,6 @@ const getSource = async () => {
         version: data.tag_name.substring(1).split('-')[ 0 ].split('.').map(Number)
     };
 };
-
 
 /**
  * @param { string } url
@@ -77,6 +76,16 @@ const shouldFetchNewVersion = (currentVersion, newVersion) => {
 };
 
 /**
+ * @param { string } path 
+ */
+const ensurePathExists = path => {
+    const slash = QODE_DESTINATION.includes('\\') ? '\\' : '/';
+    fs.mkdirSync(path.split(slash).slice(0, -1).join(slash), {
+        recursive: true
+    });
+};
+
+/**
  * @returns { number[] } 
  */
 const getCurrentVersion = () =>
@@ -94,6 +103,8 @@ const main = async () => {
         fs.existsSync(QODE_DESTINATION) &&
         !shouldFetchNewVersion(getCurrentVersion(), newVersion)
     ) return;
+
+    ensurePathExists(QODE_DESTINATION);
 
     await download(
         downloadUrl,

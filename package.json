@@ -7,8 +7,8 @@
     "scripts": {
         "build": "node scripts/build.js",
         "fetch-qode": "node scripts/fetchQode.js",
-        "blob": "npm-run-all build fetchQode && rm -f payload.bin && node scripts/generateBlob.js",
-        "build-sea": "npm-run-all fetch-qode blob && ./sea/scripts/build.sh payload.bin",
+        "blob": "npm-run-all build fetch-qode && rm -f payload.bin && node scripts/generateBlob.js",
+        "build-sea": "npm-run-all blob && ./sea/scripts/build.sh payload.bin",
         "publish": "npm-run-all build-sea && mkdir -p publish && cp sea/build/out publish/installer",
         "dev": "run-s build && qode dist/main.js",
         "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js"
