@@ -1,0 +1,1 @@
+export default [ 'win32', 'linux' ];
