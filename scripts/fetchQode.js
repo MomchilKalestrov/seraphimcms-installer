@@ -51,7 +51,7 @@ const download = (url, path) =>
     new Promise((resolve, reject) => {
         https.get(url, response => {
             if ((response.statusCode ?? 0) >= 300 && (response.statusCode ?? 0) <= 399)
-                download(response.headers.location ?? url, path)
+                return download(response.headers.location ?? url, path)
                     .then(resolve)
                     .catch(reject);
             
@@ -89,9 +89,11 @@ const ensurePathExists = path => {
  * @returns { number[] } 
  */
 const getCurrentVersion = () =>
-    spawnSync(QODE_DESTINATION, [ '--version' ])
+    (spawnSync(QODE_DESTINATION, [ '--version' ])
         .output
         .toString()
+        .split(' ')
+        .pop() ?? '')
         .substring(1)
         .split('.')
         .map(Number);

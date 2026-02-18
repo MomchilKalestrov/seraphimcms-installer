@@ -28,7 +28,7 @@ const getCertainKeys = (obj, ...keys) =>
         if (keys.includes(key))
             result[ key ] = value;
         return result;
-    }, /** @type { { [ key: string ]: any } } */({}));
+    }, /** @type { any } */({}));
 
 /**
  * @param { string } directoryName
@@ -49,7 +49,6 @@ const getAllFiles = (directoryName) => {
 
     return files;
 };
-
 
 /**
  * @param { string } dir
@@ -236,6 +235,9 @@ const resolveDependencies = () => {
     const deps = JSON.parse(rawDeps);
 
     /** @type { Set<string> } */
+    const dependenciesToIgnore = new Set([ '@nodegui/qode', 'cmake-js' ]);
+
+    /** @type { Set<string> } */
     const dependencies = new Set();
 
     /**
@@ -246,7 +248,10 @@ const resolveDependencies = () => {
     const extractDependencies = (node, deps) =>
         Object.entries(node ?? {})
             .forEach(([ key, value ]) => {
-                if (Object.keys(value).length === 0) return;
+                if (
+                    Object.keys(value).length === 0 ||
+                    dependenciesToIgnore.has(key)
+                ) return;
                 if (value.dependencies)
                     extractDependencies(value.dependencies, deps);
                 deps.add(key);

@@ -10,7 +10,7 @@
         "blob": "npm-run-all build fetch-qode && rm -f payload.bin && node scripts/generateBlob.js",
         "build-sea": "npm-run-all blob && ./sea/scripts/build.sh payload.bin",
         "publish": "npm-run-all build-sea && mkdir -p publish && cp sea/build/out publish/installer",
-        "dev": "run-s build && qode dist/main.js",
+        "dev": "run-s build && ./dist/qode dist/main.js",
         "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js"
     },
     "keywords": [],
@@ -18,12 +18,12 @@
     "license": "GPL-3.0-only",
     "dependencies": {
         "@nodegui/nodegui": "^0.73.0",
-        "argon2": "^0.44.0",
         "mongodb": "^7.0.0"
     },
     "devDependencies": {
         "@types/node": "^25.2.3",
         "npm-run-all": "^4.1.5",
+        "terser": "^5.46.0",
         "typescript": "^5.9.3"
     }
 }
