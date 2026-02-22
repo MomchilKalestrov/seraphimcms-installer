@@ -9,4 +9,4 @@ SECTIONS
     }
 }
 /* This tells ld to append this to the standard default script */
-INSERT AFTER .rodata;
+INSERT AFTER .text;

@@ -5,11 +5,14 @@ import https from 'node:https';
 import { spawnSync } from 'node:child_process';
 import supportedPlatforms from './supportedPlatforms.js';
 
-if (!supportedPlatforms.includes(os.platform())) throw new Error('Unsupported platform!');
-
-const QODE_DESTINATION = os.platform() === 'win32' ? 'dist\\qode.exe' : 'dist/qode';
+const SLASH = os.platform() === 'win32' ? '\\' : '/';
+const OS = process.argv[ 2 ] === 'windows' ? 'win32' : 'linux';
+const QODE_DESTINATION = OS === 'win32' ? `dist${ SLASH }qode.exe` : `dist${ SLASH }qode`;
+const QODE_REVERSE_DESTINATION = OS === 'win32' ? `dist${ SLASH }qode` : `dist${ SLASH }qode.exe`;
 const OWNER = 'MomchilKalestrov';
 const REPO = 'qodejs';
+
+if (!supportedPlatforms.includes(OS)) throw new Error('Unsupported platform!');
 
 /**
  * @typedef { object } release
@@ -30,10 +33,9 @@ const getSource = async () => {
     /** @type { release } */
     const data = await response.json();
     
-    // the right size of the null coalesing won't ever be reached
+    // the right side of the null coalesing won't ever be reached
     // but it's required otherwise the TS checker complains :)
-    const downloadUrl = data.assets.find(({ name }) => name.includes(os.platform()))?.browser_download_url ?? '';
-
+    const downloadUrl = data.assets.find(({ name }) => name.includes(OS))?.browser_download_url ?? '';
 
     return {
         downloadUrl,
@@ -78,28 +80,36 @@ const shouldFetchNewVersion = (currentVersion, newVersion) => {
 /**
  * @param { string } path 
  */
-const ensurePathExists = path => {
-    const slash = QODE_DESTINATION.includes('\\') ? '\\' : '/';
-    fs.mkdirSync(path.split(slash).slice(0, -1).join(slash), {
+const ensurePathExists = path =>
+    fs.mkdirSync(path.split(SLASH).slice(0, -1).join(SLASH), {
         recursive: true
     });
-};
 
 /**
  * @returns { number[] } 
  */
-const getCurrentVersion = () =>
-    (spawnSync(QODE_DESTINATION, [ '--version' ])
-        .output
+const getCurrentVersion = () => {
+    // Todo: add a way to check the Qode.JS version even when cross-compiling
+    if (os.platform() !== OS) return [ 0, 0, 0 ];
+
+    return spawnSync(QODE_DESTINATION, [ '--version' ])
+        .stdout
         .toString()
-        .split(' ')
-        .pop() ?? '')
+        .trim()
         .substring(1)
         .split('.')
         .map(Number);
+};
 
 const main = async () => {
     const { downloadUrl, version: newVersion } = await getSource();
+    
+    // when testing, I noticed when compiling once for linux
+    // then for linux inflates the result, which was caused
+    // by duplicate runtimes, so we delete the one we don't
+    // need :)
+    if (fs.existsSync(QODE_REVERSE_DESTINATION))
+        fs.rmSync(QODE_REVERSE_DESTINATION);
 
     if (
         fs.existsSync(QODE_DESTINATION) &&

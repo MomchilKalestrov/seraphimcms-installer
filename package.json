@@ -6,12 +6,19 @@
     "type": "module",
     "scripts": {
         "build": "node scripts/build.js",
-        "fetch-qode": "node scripts/fetchQode.js",
-        "blob": "npm-run-all build fetch-qode && rm -f payload.bin && node scripts/generateBlob.js",
-        "build-sea": "npm-run-all blob && ./sea/scripts/build.sh payload.bin",
-        "publish": "npm-run-all build-sea && mkdir -p publish && cp sea/build/out publish/installer",
         "dev": "run-s build && ./dist/qode dist/main.js",
-        "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js"
+        "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js",
+        "publish": "run-s publish:linux publish:windows",
+
+        "fetch-qode:linux": "node scripts/fetchQode.js linux",
+        "blob:linux": "npm-run-all build fetch-qode:linux && rm -f payload.bin && node scripts/generateBlob.js linux",
+        "build-sea:linux": "npm-run-all blob:linux && ./sea/scripts/build.sh payload.bin ",
+        "publish:linux": "npm-run-all build-sea:linux && mkdir -p publish && cp sea/build/out publish/installer",
+        
+        "fetch-qode:windows": "node scripts/fetchQode.js windows",
+        "blob:windows": "npm-run-all build fetch-qode:windows && rm -f payload.bin && node scripts/generateBlob.js windows",
+        "build-sea:windows": "npm-run-all blob:windows && ./sea/scripts/build.sh payload.bin x86_64-w64-mingw32-",
+        "publish:windows": "npm-run-all build-sea:windows && mkdir -p publish && cp sea/build/out.exe publish/installer.exe"
     },
     "keywords": [],
     "author": "Momchil Kalestrov",
