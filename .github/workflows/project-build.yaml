@@ -12,9 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: | 
-          actions/checkout@v4
-          egor-tensin/setup-mingw@v3
+      - uses: actions/checkout@v4
+      - uses: egor-tensin/setup-mingw@v3
 
       - name: Build project
         run: |
@@ -27,7 +26,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            publish/seraphimcms-linux-installer,
+            publish/seraphimcms-linux-installer
             publish/seraphimcms-windows-installer.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
