@@ -56,6 +56,7 @@ seraphimcms-container.tar
 scripts/dist
 payload.bin
 publish
+*.tar.gz
 
 # Optional eslint cache
 .eslintcache

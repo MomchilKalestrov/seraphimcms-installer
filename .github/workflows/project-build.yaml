@@ -1,0 +1,31 @@
+name: Build project for Release
+
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-project-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build project
+        run: |
+          npm i <<< linux
+          npm run publish:linux
+          npm i <<< win32
+          npm run publish:win32
+
+      - name: Upload project to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            publish/seraphimcms-linux-installer,
+            publish/seraphimcms-windows-installer.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

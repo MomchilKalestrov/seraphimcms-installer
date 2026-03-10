@@ -1,8 +1,9 @@
 //@ts-check
 import fs from 'node:fs';
 import os from 'node:os';
-import https from 'node:https';
 import { spawnSync } from 'node:child_process';
+
+import download from './download.js';
 import supportedPlatforms from './supportedPlatforms.js';
 
 const SLASH = os.platform() === 'win32' ? '\\' : '/';
@@ -42,28 +43,6 @@ const getSource = async () => {
         version: data.tag_name.substring(1).split('-')[ 0 ].split('.').map(Number)
     };
 };
-
-/**
- * @param { string } url
- * @param { string } path
- * @returns { Promise<void> }
- */
-const download = (url, path) =>
-    /** @type { Promise<void> } */
-    new Promise((resolve, reject) => {
-        https.get(url, response => {
-            if ((response.statusCode ?? 0) >= 300 && (response.statusCode ?? 0) <= 399)
-                return download(response.headers.location ?? url, path)
-                    .then(resolve)
-                    .catch(reject);
-            
-            const stream = fs.createWriteStream(path);
-            stream.on('finish', resolve);
-            stream.on('close', resolve);
-            stream.on('error', reject);
-            response.pipe(stream);
-        });
-    });
 
 /**
  * @param { number[] } currentVersion

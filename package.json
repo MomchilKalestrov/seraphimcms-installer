@@ -9,6 +9,7 @@
         "dev": "run-s build && ./dist/qode dist/main.js",
         "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js",
         "publish": "run-s publish:linux publish:windows",
+        "postinstall": "node scripts/replaceNodeGUI.js",
 
         "fetch-qode:linux": "node scripts/fetchQode.js linux",
         "blob:linux": "npm-run-all build fetch-qode:linux && rm -f payload.bin && node scripts/generateBlob.js linux",
@@ -30,6 +31,7 @@
     "devDependencies": {
         "@types/node": "^25.2.3",
         "npm-run-all": "^4.1.5",
+        "tar-stream": "^3.1.7",
         "terser": "^5.46.0",
         "typescript": "^5.9.3"
     }

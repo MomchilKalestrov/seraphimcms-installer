@@ -1,6 +1,7 @@
 //@ts-check
 import fs from 'node:fs';
 import path from 'node:path';
+
 import ts from 'typescript';
 import { minify_sync } from 'terser';
 
