@@ -19,7 +19,7 @@ jobs:
           npm i <<< linux
           npm run publish:linux
           npm i <<< win32
-          npm run publish:win32
+          npm run publish:windows
 
       - name: Upload project to release
         uses: softprops/action-gh-release@v1
