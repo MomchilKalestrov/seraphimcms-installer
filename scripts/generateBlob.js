@@ -182,8 +182,9 @@ const copyDependencies = dependencies => {
                 'dist/node_modules/' + dependency,
                 { recursive: true }
             )
-        } catch {
-            console.warn('WARNING: Failed to copy module ' + dependency)
+        } catch (error) {
+            console.warn('WARNING: Failed to copy module ' + dependency);
+            console.warn('Reason: ' + (error instanceof Error ? error.message : error));
         };
     });
 
