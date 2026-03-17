@@ -12,6 +12,7 @@ import {
 
 import BasePage from '../../lib/basePage.ts';
 import { ENV_FILE, ENV_PATH } from '../../lib/constants.ts';
+import locale from '../../lib/texts.ts';
 
 class SetupEnvironmentPage extends BasePage {
     private elements: QWidget;
@@ -25,13 +26,13 @@ class SetupEnvironmentPage extends BasePage {
 
         //#region - Title -
         const title = new QLabel();
-        title.setText('Setup Environment');
+        title.setText(locale.pages.setupEnvironment.title);
         title.setInlineStyle('font-size: 24px; font-weight: 600;');
         //#endregion
 
         //#region - MONGODB_URI -
         const mongoLabel = new QLabel();
-        mongoLabel.setText('DB URL:');
+        mongoLabel.setText(locale.pages.setupEnvironment.dbUrl);
         const mongoInput = new QLineEdit();
         mongoInput.setPlaceholderText('mongodb+srv://<...>');
         mongoInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
@@ -40,7 +41,7 @@ class SetupEnvironmentPage extends BasePage {
 
         //#region - NEXTAUTH_URL -
         const domainLabel = new QLabel();
-        domainLabel.setText('Domain:');
+        domainLabel.setText(locale.pages.setupEnvironment.domain);
         const domainInput = new QLineEdit();
         domainInput.setPlaceholderText('www.example.com');
         domainInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
@@ -49,7 +50,7 @@ class SetupEnvironmentPage extends BasePage {
 
         //#region - BLOB_READ_WRITE_TOKEN -
         const blobTokenLabel = new QLabel();
-        blobTokenLabel.setText('Blob Token:');
+        blobTokenLabel.setText(locale.pages.setupEnvironment.blobToken);
         const blobTokenInput = new QLineEdit();
         blobTokenInput.setPlaceholderText('vercel_blob_rw_<...>');
         blobTokenInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
@@ -58,7 +59,7 @@ class SetupEnvironmentPage extends BasePage {
 
         //#region - NEXT_PUBLIC_BLOB_URL -
         const blobUrlLabel = new QLabel();
-        blobUrlLabel.setText('Blob URL:');
+        blobUrlLabel.setText(locale.pages.setupEnvironment.blobUrl);
         const blobUrlInput = new QLineEdit();
         blobUrlInput.setPlaceholderText('https://<...>.public.blob.vercel-storage.com');
         blobUrlInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);

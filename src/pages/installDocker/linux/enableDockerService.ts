@@ -1,4 +1,5 @@
 import { getInit } from '../../../lib/utils.ts';
+import locale from '../../../lib/texts.ts';
 
 import init from './enableDockerService/init.ts';
 import runit from './enableDockerService/runit.ts';
@@ -11,7 +12,7 @@ const inits: Record<string, () => void> = {
 
 const enableDockerService = async () => {
     const init = getInit();
-    if (!init) throw 'Unsuported init!';
+    if (!init) throw locale.pages.installDocker.errors.unsupportedInit;
     inits[ init ]!();
 };
 

@@ -8,6 +8,7 @@ import {
 
 import BasePage from '../../lib/basePage.ts';
 import isRoot from '../../lib/isRoot.ts';
+import locale from '../../lib/texts.ts';
 
 class WelcomePage extends BasePage {
     private elements: QWidget;
@@ -18,7 +19,7 @@ class WelcomePage extends BasePage {
 
         //#region - Title -
         const title = new QLabel();
-        title.setText('SeraphimCMS Installer');
+        title.setText(locale.pages.welcome.title);
         title.setInlineStyle('font-size: 24px; font-weight: 600;');
         //#endregion
 
@@ -27,30 +28,9 @@ class WelcomePage extends BasePage {
         text.setTextFormat(TextFormat.RichText);
         text.setOpenExternalLinks(true);
         if (!this.isRoot)
-            text.setText(/*html*/
-                `<p>
-                    Sorry, but this program requires elevated privilidges.<br />
-                    Please try running as administrator if you're on Windows<br />
-                    or with sudo if you're on Linux.
-                </p>`
-            );
+            text.setText(locale.pages.welcome.sudoRequest);
         else
-            text.setText(/*html*/
-                `<p>
-                    Welcome to the SeraphimCMS installer wizzard.<br />
-                    SeraphimCMS is a self-hosted website builder. This tool is<br />
-                    meant to help the initial setup.
-                </p>
-                <p>
-                    The project, along with this installer, is licensed under<br />
-                    GPLv3. The developers of SeraphimCMS bear no<br />
-                    responsability for any damages occured during the use of<br />
-                    SeraphimCMS. You can read the license here:
-                </p>
-                <p>
-                    <a href="https://https://www.gnu.org/licenses/gpl-3.0.en.html">https://www.gnu.org/licenses/gpl-3.0.en.html</a>
-                </p>`
-            );
+            text.setText(locale.pages.welcome.welcomeText);
         //#endregion
 
         //#region - Elements -

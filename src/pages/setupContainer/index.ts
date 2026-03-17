@@ -15,6 +15,7 @@ import download from '../../lib/download.ts';
 import { OWNER, REPO, IMAGE_FILENAME } from '../../lib/constants.ts';
 import enableAutoStartService from './enableAutoStartService.ts';
 import exposePort from './exposePort.ts';
+import locale from '../../lib/texts.ts';
 
 class SetupContainerPage extends BasePage {
     private elements: QWidget;
@@ -68,7 +69,7 @@ class SetupContainerPage extends BasePage {
             }
         });
 
-        if (!response.ok) throw 'Failed to download SeraphimCMS Docker container.';
+        if (!response.ok) throw locale.pages.setupContainer.errors.downloadFailed;
 
         const { assets } = await response.json() as { assets: { name: string; browser_download_url: string; }[]; };
 
@@ -78,28 +79,28 @@ class SetupContainerPage extends BasePage {
     };
 
     private startInstall = () => {
-        this.status.setText('Downloading...');
+        this.status.setText(locale.pages.setupContainer.status.downloading);
         this.getDownloadUrl()
             .then(url => download(url, progress => this.progress.setValue(progress)))
             .then(blob => {
                 fs.writeFileSync(IMAGE_FILENAME, blob);
 
-                this.status.setText('Loading Docker image...');
+                this.status.setText(locale.pages.setupContainer.status.loading);
                 spawnSync('docker', [ 'load', '-i', IMAGE_FILENAME ]);
                 spawnSync('docker', [ 'run', '-d', `--env-file=${ IMAGE_FILENAME }`, '--restart', 'unless-stopped', 'seraphimcms:latest' ]);
 
-                this.status.setText('Exposing port...');
+                this.status.setText(locale.pages.setupContainer.status.exposingPort);
                 exposePort();
                 
                 if (os.platform() !== 'win32') {
-                    this.status.setText('Enabling on startup...');
+                    this.status.setText(locale.pages.setupContainer.status.enablingService);
                     enableAutoStartService();
                 };
                 
-                this.status.setText('Done!');
+                this.status.setText(locale.success);
                 this.statusEventEmitter.emit('status', true);
             })
-            .catch(error => this.status.setText('Error:\n' + (error.message ?? error)));
+            .catch(error => this.status.setText(locale.error + '\n' + (error.message ?? error)));
     };
 
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {

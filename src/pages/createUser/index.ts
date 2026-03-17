@@ -14,6 +14,7 @@ import {
 
 import BasePage from '../../lib/basePage.ts';
 import createOwnerUser from './createOwnerUser.ts';
+import locale from '../../lib/texts.ts';
 
 class CreateUserPage extends BasePage {
     private elements: QWidget;
@@ -29,7 +30,7 @@ class CreateUserPage extends BasePage {
 
         //#region - Title -
         const title = new QLabel();
-        title.setText('Setup Environment');
+        title.setText(locale.pages.createUser.title);
         title.setInlineStyle('font-size: 24px; font-weight: 600;');
         //#endregion
 
@@ -37,19 +38,12 @@ class CreateUserPage extends BasePage {
         const text = new QLabel();
         text.setTextFormat(TextFormat.RichText);
         text.setInlineStyle('margin-bottom: 8px;')
-        text.setText(/*html*/
-            `<p>Set the administator's username and password.</p>
-            <p>- The username must include only alphabetical characters.</p>
-            <p>
-                - The password must be 8 characters long, 2 alphabetical<br />
-                characters and 1 special character.
-            </p>`
-        );
+        text.setText(locale.pages.createUser.info);
         //#endregion
 
         //#region - Username -
         const usernameLabel = new QLabel();
-        usernameLabel.setText('Username:');
+        usernameLabel.setText(locale.pages.createUser.username);
         const usernameInput = new QLineEdit();
         usernameInput.setPlaceholderText('admin');
         usernameInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
@@ -58,7 +52,7 @@ class CreateUserPage extends BasePage {
 
         //#region - Password -
         const passwordLabel = new QLabel();
-        passwordLabel.setText('Password:');
+        passwordLabel.setText(locale.pages.createUser.password);
         const passwordInput = new QLineEdit();
         passwordInput.setPlaceholderText('Ab12345/');
         passwordInput.setEchoMode(EchoMode.Password);
@@ -68,7 +62,7 @@ class CreateUserPage extends BasePage {
 
         //#region - Generate User -
         this.generateUserButton = new QPushButton();
-        this.generateUserButton.setText('Create User');
+        this.generateUserButton.setText(locale.pages.createUser.createUser);
         this.generateUserButton.setInlineStyle('padding: 4px 8px;');
         this.generateUserButton.addEventListener('clicked', this.addUser);
         //#endregion
@@ -136,7 +130,7 @@ class CreateUserPage extends BasePage {
                 this.generateUserButton.setText('Done!');
                 this.statusEventEmitter.emit('status', true);
             })
-            .catch(error => this.generateUserButton.setText('Error:\n' + (error.message ?? error)));
+            .catch(error => this.generateUserButton.setText(locale.error + '\n' + (error.message ?? error)));
     };
 
     public getElements = () => this.elements;

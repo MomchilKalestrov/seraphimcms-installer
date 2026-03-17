@@ -16,6 +16,7 @@ import BasePage from '../../lib/basePage.ts';
 
 import linux from './linux.ts';
 import win32 from './win32.ts';
+import locale from '../../lib/texts.ts';
 
 const platforms: Record<string, () => Promise<void>> = { linux, win32 };
 
@@ -28,7 +29,7 @@ class InstallDockerPage extends BasePage {
 
         //#region - Title -
         const title = new QLabel();
-        title.setText('Install docker');
+        title.setText(locale.pages.installDocker.title);
         title.setInlineStyle('font-size: 24px; font-weight: 600;');
         title.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Minimum);
         //#endregion
@@ -37,22 +38,7 @@ class InstallDockerPage extends BasePage {
         const text = new QLabel();
         text.setTextFormat(TextFormat.RichText);
         text.setOpenExternalLinks(true);
-        text.setText(/*html*/
-            `<p>
-                Firstly you will need to install Docker. The Docker Engine<br />
-                is licensed under Apache-2.0:
-            </p>
-            <p>
-                <a href="https://www.apache.org/licenses/LICENSE-2.0.txt">https://www.apache.org/licenses/LICENSE-2.0.txt</a>
-            </p>
-            <p>
-                <span style="font-weight: 500;">Note:</span> Docker Desktop is also required for Windows, for<br />
-                which you will need to agree to the Docker Desktop EULA:
-            </p>
-            <p>
-                <a href="https://docs.docker.com/subscription/desktop-license/">https://docs.docker.com/subscription/desktop-license/</a>
-            </p>`
-        );
+        text.setText(locale.pages.installDocker.info);
         //#endregion
 
         //#region - Install Button -
@@ -60,10 +46,10 @@ class InstallDockerPage extends BasePage {
         this.installButton.addEventListener('clicked', this.installDocker);
         this.installButton.setInlineStyle('margin-top: 8px; padding: 4px 8px;');
         if (this.isDockerInstalled()) {
-            this.installButton.setText('Docker is already installed!');
+            this.installButton.setText(locale.pages.installDocker.alreadyInstalled);
             this.installButton.setEnabled(false);
         } else {
-            this.installButton.setText('Install Docker');
+            this.installButton.setText(locale.pages.installDocker.installPrompt);
         };
         //#region
 
@@ -109,16 +95,16 @@ class InstallDockerPage extends BasePage {
 
     private installDocker = () => {
         this.installButton.setDisabled(true);
-        this.installButton.setText('Please wait...');
+        this.installButton.setText(locale.pages.installDocker.wait);
         
         const installer = platforms[ os.platform() ];
         
         installer!()
             .then(() => {
                 this.statusEventEmitter.emit('status', true);
-                this.installButton.setText('Done!');
+                this.installButton.setText(locale.success);
             })
-            .catch(error => this.installButton.setText('Error:\n' + (error.message ?? error) + '\nInstall and enable Docker manually.'));
+            .catch(error => this.installButton.setText(locale.error + '\n' + (error.message ?? error) + '\nInstall and enable Docker manually.'));
     };
 };
 
