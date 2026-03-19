@@ -10,6 +10,7 @@ import https from 'node:https';
 const download = (url, path) =>
     /** @type { Promise<void | > } */
     new Promise((resolve, reject) => {
+        console.log('Downloading ' + url + ' => ' + path);
         https.get(url, response => {
             if ((response.statusCode ?? 0) >= 300 && (response.statusCode ?? 0) <= 399)
                 return download(response.headers.location ?? url, path)

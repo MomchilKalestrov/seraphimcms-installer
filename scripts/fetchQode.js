@@ -18,10 +18,9 @@ if (!supportedPlatforms.includes(OS)) throw new Error('Unsupported platform!');
 /**
  * @typedef { object } release
  * @property { ({ name: string; browser_download_url: string; })[] } assets
- * @property { string } tag_name 
+ * @property { string } tag_name
+ * @returns { Promise<{ downloadUrl: string; version: number[] }> } 
  */
-
-/** @returns { Promise<{ downloadUrl: string; version: number[] }> } */
 const getSource = async () => {
     const response = await fetch(`https://api.github.com/repos/${ OWNER }/${ REPO }/releases/latest`, {
         headers: {
@@ -68,16 +67,23 @@ const ensurePathExists = path =>
  * @returns { number[] } 
  */
 const getCurrentVersion = () => {
-    // Todo: add a way to check the Qode.JS version even when cross-compiling
-    if (os.platform() !== OS) return [ 0, 0, 0 ];
+    /** @type { ReturnType<typeof spawnSync> } */
+    let process = os.platform() === 'linux' && OS === 'win32'
+        ?   spawnSync('wine', [ QODE_DESTINATION, '--version' ])
+        :   spawnSync(QODE_DESTINATION, [ '--version' ]);
 
-    return spawnSync(QODE_DESTINATION, [ '--version' ])
+    /** @type { number[] } */
+    const version = process
         .stdout
         .toString()
         .trim()
         .substring(1)
         .split('.')
         .map(Number);
+
+    console.log(`Detected version ${ version.join('.') }`)
+
+    return version;
 };
 
 const main = async () => {
