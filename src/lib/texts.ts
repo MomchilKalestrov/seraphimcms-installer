@@ -47,7 +47,11 @@ interface Locale {
             username: string;
             password: string;
             createUser: string;
-        }
+        };
+        done: {
+            title: string;
+            info: string;
+        };
     };
 };
 
@@ -140,6 +144,12 @@ const locales: Record<string, Locale> = {
                         characters and 1 special character.
                     </p>`,
                 createUser: 'Create user'
+            },
+            done: {
+                title: 'Done',
+                info: /* html */
+                    `<p>The installation is complete.</p>
+                    <p>You may now close this window.</p>`
             }
         }
     },
@@ -231,6 +241,12 @@ const locales: Record<string, Locale> = {
                         и 1 специален знак.
                     </p>`,
                 createUser: 'Създай потребител'
+            },
+            done: {
+                title: 'Done',
+                info: /* html */
+                    `<p>Инсталацията е готова.</p>
+                    <p>Може да затворите този прозорец.</p>`
             }
         }
     }

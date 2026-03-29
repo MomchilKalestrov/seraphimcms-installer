@@ -1,3 +1,4 @@
+import DonePage from './done/index.ts';
 import WelcomePage from './welcome/index.ts';
 import CreateUserPage from './createUser/index.ts';
 import InstallDockerPage from './installDocker/index.ts';
@@ -9,5 +10,6 @@ export default [
     InstallDockerPage,
     SetupEnvironmentPage,
     SetupContainerPage,
-    CreateUserPage
+    CreateUserPage,
+    DonePage
 ];
