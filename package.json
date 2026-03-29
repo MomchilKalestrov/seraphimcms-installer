@@ -8,7 +8,6 @@
         "build": "node scripts/build.js",
         "dev": "run-s build && ./dist/qode dist/main.js",
         "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js",
-        "publish": "run-s publish:linux publish:windows",
         "postinstall": "node scripts/replaceNodeGUI.js",
 
         "fetch-qode:linux": "node scripts/fetchQode.js linux",
@@ -16,10 +15,10 @@
         "build-sea:linux": "npm-run-all blob:linux && ./sea/scripts/build.sh payload.bin ",
         "publish:linux": "npm-run-all build-sea:linux && mkdir -p publish && cp sea/build/out publish/seraphimcms-linux-installer",
         
-        "fetch-qode:windows": "node scripts/fetchQode.js windows",
-        "blob:windows": "npm-run-all build fetch-qode:windows && rm -f payload.bin && node scripts/generateBlob.js windows",
-        "build-sea:windows": "npm-run-all blob:windows && ./sea/scripts/build.sh payload.bin x86_64-w64-mingw32-",
-        "publish:windows": "npm-run-all build-sea:windows && mkdir -p publish && cp sea/build/out.exe publish/seraphimcms-windows-installer.exe"
+        "fetch-qode:win32": "node scripts/fetchQode.js win32",
+        "blob:win32": "npm-run-all build fetch-qode:win32 && rm -f payload.bin && node scripts/generateBlob.js win32",
+        "build-sea:win32": "npm-run-all blob:win32 && ./sea/scripts/build.sh payload.bin x86_64-w64-mingw32-",
+        "publish:win32": "npm-run-all build-sea:win32 && mkdir -p publish && cp sea/build/out.exe publish/seraphimcms-win32-installer.exe"
     },
     "keywords": [],
     "author": "Momchil Kalestrov",

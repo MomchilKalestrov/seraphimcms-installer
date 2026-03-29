@@ -11,22 +11,22 @@ jobs:
   build-project-release:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        platform: [ linux, win32 ]
+
     steps:
       - uses: actions/checkout@v4
       - uses: egor-tensin/setup-mingw@v3
 
       - name: Build project
         run: |
-          npm i <<< linux
-          npm run publish:linux
-          npm i <<< win32
-          npm run publish:windows
+          npm i <<< ${{ matrix.platform }}
+          npm run publish:${{ matrix.platform }}
 
       - name: Upload project to release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            publish/seraphimcms-linux-installer
-            publish/seraphimcms-windows-installer.exe
+          files: publish/seraphimcms-${{ matrix.platform }}-installer${{ matrix.platform == 'win32' && '.exe' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
