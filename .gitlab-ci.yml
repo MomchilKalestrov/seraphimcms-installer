@@ -15,14 +15,18 @@ auto-release:
   script:
     - DATE_TAG=$(date +v%Y.%m.%d-%H%M)
     - "echo Generated tag: $DATE_TAG"
+    - echo "DATE_TAG=$DATE_TAG" > release.env
     - git tag $DATE_TAG
     - git push https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git $DATE_TAG
+  artifacts:
+    reports:
+      dotenv: release.env
 
 build-release:
   stage: build-release
   image: ubuntu:latest
   only:
-    - tags
+    - master
   parallel:
     matrix:
       - PLATFORM: [ win32, linux ]
@@ -41,18 +45,18 @@ release:
   stage: create-release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   only:
-    - tags
+    - master
   script:
-    - echo "Creating release for $CI_COMMIT_TAG"
+    - echo "Creating release for $DATE_TAG"
   release:
-    tag_name: $CI_COMMIT_TAG
-    name: 'Release $CI_COMMIT_TAG'
-    description: 'Automated release for $CI_COMMIT_TAG'
+    tag_name: $DATE_TAG
+    name: 'Release $DATE_TAG'
+    description: 'Automated release for $DATE_TAG'
     assets:
       links:
         - name: seraphimcms-linux-installer
-          url: https://$CI_SERVER_HOST/$CI_PROJECT_PATH/-/jobs/artifacts/$CI_COMMIT_TAG/raw/publish/seraphimcms-linux-installer?job=build-release%3A%20%5Blinux%5D
+          url: https://$CI_SERVER_HOST/$CI_PROJECT_PATH/-/jobs/artifacts/$CI_COMMIT_REF_NAME/raw/publish/seraphimcms-linux-installer?job=build-release%3A%20%5Blinux%5D
           link_type: other
         - name: seraphimcms-win32-installer.exe
-          url: https://$CI_SERVER_HOST/$CI_PROJECT_PATH/-/jobs/artifacts/$CI_COMMIT_TAG/raw/publish/seraphimcms-win32-installer.exe?job=build-release%3A%20%5Bwin32%5D
+          url: https://$CI_SERVER_HOST/$CI_PROJECT_PATH/-/jobs/artifacts/$CI_COMMIT_REF_NAME/raw/publish/seraphimcms-win32-installer.exe?job=build-release%3A%20%5Bwin32%5D
           link_type: other
