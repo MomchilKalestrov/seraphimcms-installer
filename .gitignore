@@ -57,6 +57,7 @@ scripts/dist
 payload.bin
 publish
 *.tar.gz
+.gitlab-ci-local/
 
 # Optional eslint cache
 .eslintcache
