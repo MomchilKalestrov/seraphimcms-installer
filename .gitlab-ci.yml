@@ -70,5 +70,5 @@ update-github-mirror:
   before_script:
     - apt-get update && apt-get install -y git
   script:
-    - git remote add github https://MomchilKalestrov:${GITHUB_MIRROR_TOKEN}@github.com/MomchilKalestrov/will-power.git
+    - git remote add github https://MomchilKalestrov:${GITHUB_MIRROR_TOKEN}@github.com/MomchilKalestrov/seraphimcms-installer.git
     - git push github HEAD:master --force
