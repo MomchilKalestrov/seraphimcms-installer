@@ -32,7 +32,7 @@ build-release:
     matrix:
       - PLATFORM: [ win32, linux ]
   before_script:
-    - apt-get update && apt-get install -y curl make $(if [ "$PLATFORM" = "win32" ]; then echo "mingw-w64"; else echo "gcc"; fi)
+    - apt-get update && apt-get install -y git curl make $(if [ "$PLATFORM" = "win32" ]; then echo "mingw-w64"; else echo "gcc"; fi)
     - curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
     - apt-get install -y nodejs
   script:
