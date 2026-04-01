@@ -1,20 +1,19 @@
 //@ts-check
 import fs from 'node:fs';
 import path from 'node:path';
+import tar from 'tar-stream';
+import { stdout } from 'node:process';
 import { createGunzip } from 'node:zlib';
 import { pipeline } from 'node:stream/promises';
 import { createInterface } from 'node:readline/promises';
+
+import download from './download.js';
+import supportedPlatforms from './supportedPlatforms.js';
 
 const rl = createInterface({
     input: process.stdin,
     output: process.stdout
 });
-
-import tar from 'tar-stream';
-
-import download from './download.js';
-import supportedPlatforms from './supportedPlatforms.js';
-import { stdin, stdout } from 'node:process';
 
 let OS = '';
 

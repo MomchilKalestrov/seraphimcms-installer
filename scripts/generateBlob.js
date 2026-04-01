@@ -2,8 +2,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import supportedPlatforms from './supportedPlatforms.js';
 
+import { compress } from '@mongodb-js/zstd';
+
+import supportedPlatforms from './supportedPlatforms.js';
 
 const OS = process.argv[ 2 ] === 'windows' ? 'win32' : 'linux';
 const ENTRYPOINT_COMMAND = 
@@ -263,7 +265,7 @@ const resolveDependencies = () => {
     return dependencies;
 };
 
-const main = () => {
+const main = async () => {
     copyDependencies(resolveDependencies());
 
     // some files are not needed. For example C headers or .d.ts files
@@ -302,14 +304,22 @@ const main = () => {
                 permissions: getPermissions(name)
             }));
 
-    const binary = Buffer.concat([
+    const uncompressedBinary = Buffer.concat([
         constructHeader(files.length),
         constructDescriptors(files),
         constructNameSection(files),
         constructDataSection(files)
     ]);
+    const uncompressedSize = uncompressedBinary.length;
+    
+    const compressedBinary = await compress(uncompressedBinary);
+    const compressedSize = compressedBinary.length;
 
-    fs.writeFileSync('payload.bin', binary);
+    fs.writeFileSync('payload.bin', Buffer.concat([
+        ll2arr(uncompressedSize),
+        ll2arr(compressedSize),
+        compressedBinary
+    ]));
 
     /**
      * @param { number } value
@@ -323,7 +333,7 @@ const main = () => {
         return Math.floor(value) + ' ' + units[ i ];
     };
 
-    console.log('Payload created with size: ' + toShorten(binary.byteLength));
+    console.log('Payload created with size: ' + toShorten(compressedBinary.byteLength));
 };
 
 main();

@@ -37,7 +37,6 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
-sea/build
 
 # Dependency directories
 node_modules/
@@ -58,6 +57,8 @@ payload.bin
 publish
 *.tar.gz
 .gitlab-ci-local/
+sea/lib/zstd
+sea/build
 
 # Optional eslint cache
 .eslintcache

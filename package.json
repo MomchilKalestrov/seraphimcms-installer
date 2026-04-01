@@ -8,13 +8,11 @@
         "build": "node scripts/build.js",
         "dev": "run-s build && ./dist/qode dist/main.js",
         "dev-pk": "run-s build && pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js",
-        "postinstall": "node scripts/replaceNodeGUI.js",
-
+        "postinstall": "node scripts/replaceNodeGUI.js && node scripts/setupZstd.js",
         "fetch-qode:linux": "node scripts/fetchQode.js linux",
         "blob:linux": "npm-run-all build fetch-qode:linux && rm -f payload.bin && node scripts/generateBlob.js linux",
         "build-sea:linux": "npm-run-all blob:linux && ./sea/scripts/build.sh payload.bin ",
         "publish:linux": "npm-run-all build-sea:linux && mkdir -p publish && cp sea/build/out publish/seraphimcms-linux-installer",
-        
         "fetch-qode:win32": "node scripts/fetchQode.js win32",
         "blob:win32": "npm-run-all build fetch-qode:win32 && rm -f payload.bin && node scripts/generateBlob.js win32",
         "build-sea:win32": "npm-run-all blob:win32 && ./sea/scripts/build.sh payload.bin x86_64-w64-mingw32-",
@@ -28,6 +26,7 @@
         "mongodb": "^7.0.0"
     },
     "devDependencies": {
+        "@mongodb-js/zstd": "^7.0.0",
         "@types/node": "^25.2.3",
         "npm-run-all": "^4.1.5",
         "tar-stream": "^3.1.7",

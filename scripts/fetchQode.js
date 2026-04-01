@@ -99,7 +99,10 @@ const main = async () => {
     if (
         fs.existsSync(QODE_DESTINATION) &&
         !shouldFetchNewVersion(getCurrentVersion(), newVersion)
-    ) return;
+    ) {
+        console.log('No need to fetch a new Qode.JS version.');
+        return;
+    };
 
     ensurePathExists(QODE_DESTINATION);
 

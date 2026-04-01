@@ -1,9 +1,9 @@
 #!/bin/bash
 
+BASEDIR=$(dirname $0)/..
 PAYLOAD_PATH=$1
 GCC_PREFIX=$2
-
-BASEDIR=$(dirname $0)/..
+ZSTD_PATH=$BASEDIR/lib/zstd/lib/libzstd.a
 
 mkdir -p $BASEDIR/build
 
@@ -19,9 +19,13 @@ function prepare_payload_linux {
         $PAYLOAD_PATH $BASEDIR/build/payload.o
 }
 
+function build_zstd {
+    make -C $BASEDIR/lib/zstd/lib ZSTD_LIB_COMPRESSION=0 ZSTD_LIB_DECOMPRESSION=1 CC=${GCC_PREFIX}gcc AR=${GCC_PREFIX}ar
+}
+
 function build_binary {
     ${GCC_PREFIX}gcc -c $BASEDIR/src/main.c -o $BASEDIR/build/main.o
-    ${GCC_PREFIX}gcc $BASEDIR/build/main.o $ICON_OBJECT $BASEDIR/build/payload.o -T $BASEDIR/src/linker.ld -o $BASEDIR/build/out
+    ${GCC_PREFIX}gcc $BASEDIR/build/main.o $ZSTD_PATH $ICON_OBJECT $BASEDIR/build/payload.o -T $BASEDIR/src/linker.ld -o $BASEDIR/build/out
 }
 
 function generate_icon_windows {
@@ -30,11 +34,13 @@ function generate_icon_windows {
     echo $BASEDIR/build/icon.o
 }
 
+build_zstd
+
 if [[ "$GCC_PREFIX" == *"mingw32"* ]]; then
     prepare_payload_windows
     ICON_OBJECT=$(generate_icon_windows)
-    build_binary
-else
-    prepare_payload_linux
-    build_binary
-fi
+else prepare_payload_linux; fi
+
+build_binary
+
+echo build complete

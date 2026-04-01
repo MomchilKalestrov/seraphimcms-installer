@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include "../../lib/zstd/lib/zstd.h"
 
 typedef struct __attribute__((__packed__)) data_header {
     bool used;

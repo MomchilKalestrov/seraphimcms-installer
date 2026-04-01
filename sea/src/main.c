@@ -12,16 +12,17 @@
 
 void extract_files(const data_t *files, size_t count) {
     for (size_t i = 0; i < count; i++) {
-        uintptr_t absolute_name_ptr = (uintptr_t)&__start_payload + (uintptr_t)files[ i ].filename;
-        uintptr_t absolute_data_ptr = (uintptr_t)&__start_payload + (uintptr_t)files[ i ].data;
+        uintptr_t absolute_name_ptr = (uintptr_t)decompressed_data_ptr + (uintptr_t)files[ i ].filename;
+        uintptr_t absolute_data_ptr = (uintptr_t)decompressed_data_ptr + (uintptr_t)files[ i ].data;
 
-        ensure_parent_dirs((char *)absolute_name_ptr);
-
+        
         printf("files[ %d ].filename is %s\n", i, absolute_name_ptr);
         printf("files[ %d ].permissions is %o\n", i, files[ i ].permissions);
         printf("files[ %d ].size is %d\n", i, files[ i ].size);
         printf("---\n");
 
+        ensure_parent_dirs((char *)absolute_name_ptr);
+        
         FILE *fptr = fopen((char *)absolute_name_ptr, "wb");
 
         if (!fptr) {
