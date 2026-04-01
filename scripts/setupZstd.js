@@ -7,9 +7,10 @@ const ZSTD_PATH = 'sea/lib/zstd';
 
 const main = async () => {
     console.log('Downloading the C implementation of `zstd`.');
-    fs.mkdirSync(ZSTD_PATH, { recursive: true });
-    if (!fs.existsSync(ZSTD_PATH))
+    if (!fs.existsSync(ZSTD_PATH)) {
+        fs.mkdirSync(ZSTD_PATH, { recursive: true });
         spawnSync('git', [ 'clone', ZSTD_REPO, ZSTD_PATH ], { stdio: 'inherit' });
+    };
 };
 
 main();
