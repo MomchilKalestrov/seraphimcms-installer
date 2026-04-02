@@ -10,9 +10,6 @@ void decompress_data(void) {
     size_t compressed_size = ((size_t *)__start_payload)[1];
     void *compressed_data_ptr = (size_t *)__start_payload + 2;
 
-    printf("original size is %zub\n", original_size);
-    printf("compressed size is %zub\n", compressed_size);
-
     if (decompressed_data_ptr != NULL) // idk, better be safe than sorry
         free(decompressed_data_ptr);
     decompressed_data_ptr = (uint8_t *)malloc(original_size);

@@ -9,7 +9,7 @@
 #include "../../lib/zstd/lib/zstd.h"
 
 typedef struct __attribute__((__packed__)) data_header {
-    bool used;
+    bool reserved; // used to be `used`, but useless after adding compression
     size_t count;
     char entrypoint;
 } data_header_t;

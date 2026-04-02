@@ -5,21 +5,33 @@
 
 #ifdef __linux__
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #endif
 
 #include "./data/data.h"
 #include "./mkdir/mkdir.h"
+
+size_t window_width = 80;
+
+void print_progress(size_t current, size_t total) {
+    size_t progress_bar_width = window_width - 2;
+    float progress = (float)current / (float)total;
+
+    printf("\33[2k\r"); // clears the previous text
+    printf("[");
+    for (size_t i = 0; i < (size_t)(progress * (float)progress_bar_width); i++)
+        printf("#");
+    for (size_t i = 0; i < progress_bar_width - 1 - (size_t)(progress * (float)progress_bar_width); i++)
+        printf("-");
+    printf("]");
+}
 
 void extract_files(const data_t *files, size_t count) {
     for (size_t i = 0; i < count; i++) {
         uintptr_t absolute_name_ptr = (uintptr_t)decompressed_data_ptr + (uintptr_t)files[ i ].filename;
         uintptr_t absolute_data_ptr = (uintptr_t)decompressed_data_ptr + (uintptr_t)files[ i ].data;
 
-        
-        printf("files[ %d ].filename is %s\n", i, absolute_name_ptr);
-        printf("files[ %d ].permissions is %o\n", i, files[ i ].permissions);
-        printf("files[ %d ].size is %d\n", i, files[ i ].size);
-        printf("---\n");
+        print_progress(i, count);
 
         ensure_parent_dirs((char *)absolute_name_ptr);
         
@@ -28,7 +40,7 @@ void extract_files(const data_t *files, size_t count) {
         if (!fptr) {
             printf("Failed to extract file: %s\n", absolute_name_ptr);
             continue;
-        };
+        }
 
         fwrite(
             (void *)absolute_data_ptr, // binary data
@@ -36,29 +48,30 @@ void extract_files(const data_t *files, size_t count) {
             files[ i ].size,           // length of data to write
             fptr                       // file pointer
         );
-        #ifdef __linux__
+
+#ifdef __linux__
         chmod(
             (char *)absolute_name_ptr,
             files[ i ].permissions |
             files[ i ].permissions << 3 |
             files[ i ].permissions << 6
         );
-        #endif
+#endif
+
         fclose(fptr);
-    };
-};
+    }
+}
 
 void main() {
-    const data_header_t *header = get_header();
-    if (!header->used) {
-        printf("Payload missing. Aborting");
-        exit(0);
-    }
+#ifdef __linux__
+    struct winsize w;
+    ioctl(0, TIOCGWINSZ, &w);
+    window_width = w.ws_col;
+#endif
 
-    printf("header is %p\n", header);
-    printf("header->count is %d\n", header->count);
-    printf("header->entrypoint is %s\n", &header->entrypoint);
-    printf("--\n");
+    const data_header_t *header = get_header();
+
+    printf("Decompressing, please wait.\n");
 
     const data_t *files = get_data();
     extract_files(files, header->count);
