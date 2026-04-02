@@ -8,6 +8,10 @@
 #include <sys/ioctl.h>
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "./data/data.h"
 #include "./mkdir/mkdir.h"
 
@@ -62,12 +66,20 @@ void extract_files(const data_t *files, size_t count) {
     }
 }
 
-void main() {
-#ifdef __linux__
+size_t get_console_width(void) {
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    return csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#else
     struct winsize w;
     ioctl(0, TIOCGWINSZ, &w);
-    window_width = w.ws_col;
+    return w.ws_col;
 #endif
+}
+
+void main() {
+    window_width = get_console_width();
 
     const data_header_t *header = get_header();
 
