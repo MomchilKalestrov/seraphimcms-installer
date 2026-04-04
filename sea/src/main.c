@@ -32,8 +32,8 @@ void print_progress(size_t current, size_t total) {
 
 void extract_files(const data_t *files, size_t count) {
     for (size_t i = 0; i < count; i++) {
-        uintptr_t absolute_name_ptr = (uintptr_t)decompressed_data_ptr + (uintptr_t)files[ i ].filename;
-        uintptr_t absolute_data_ptr = (uintptr_t)decompressed_data_ptr + (uintptr_t)files[ i ].data;
+        uintptr_t absolute_name_ptr =  to_decompressed_data_ptr((uintptr_t)files[ i ].filename);
+        uintptr_t absolute_data_ptr = to_decompressed_data_ptr((uintptr_t)files[ i ].data);
 
         print_progress(i, count);
 
@@ -42,7 +42,7 @@ void extract_files(const data_t *files, size_t count) {
         FILE *fptr = fopen((char *)absolute_name_ptr, "wb");
 
         if (!fptr) {
-            printf("Failed to extract file: %s\n", absolute_name_ptr);
+            printf("Failed to extract file: %s\n", (char *)absolute_name_ptr);
             continue;
         }
 
@@ -78,7 +78,7 @@ size_t get_console_width(void) {
 #endif
 }
 
-void main() {
+int main() {
     window_width = get_console_width();
 
     const data_header_t *header = get_header();
@@ -89,4 +89,6 @@ void main() {
     extract_files(files, header->count);
     
     system(&header->entrypoint);
+
+    return 0;
 }

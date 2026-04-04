@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
 #ifdef _WIN32
 #include <direct.h>
 #define MKDIR(path) _mkdir(path)
@@ -19,7 +18,5 @@
 
 static int mkdir_p(const char *path);
 void ensure_parent_dirs(const char *filepath);
-
-#include "./mkdir.c"
 
 #endif

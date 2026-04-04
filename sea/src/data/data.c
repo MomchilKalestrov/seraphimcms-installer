@@ -18,15 +18,19 @@ void decompress_data(void) {
     ZSTD_decompress(decompressed_data_ptr, original_size + 1, compressed_data_ptr, compressed_size);
 }
 
-static inline const data_header_t *get_header(void) {
+const data_header_t *get_header(void) {
     if (decompressed_data_ptr == NULL) decompress_data();
     return (data_header_t *)decompressed_data_ptr;
 }
 
-static inline const data_t *get_data(void) {
+const data_t *get_data(void) {
     if (decompressed_data_ptr == NULL) decompress_data();
     
     const data_header_t *header = get_header();
     const uint8_t *ptr = (uint8_t *)header + sizeof(data_header_t) + strlen(&header->entrypoint);
     return (const data_t *)ptr;
+}
+
+const uintptr_t to_decompressed_data_ptr(const uintptr_t ptr) {
+    return (uintptr_t)decompressed_data_ptr + ptr;
 }

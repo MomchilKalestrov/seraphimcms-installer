@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include "../../lib/zstd/lib/zstd.h"
 
 typedef struct __attribute__((__packed__)) data_header {
@@ -21,9 +23,9 @@ typedef struct __attribute__((__packed__)) data {
     uint8_t *data;
 } data_t;
 
-static inline const data_header_t *get_header(void);
-static inline const data_t *get_data(void);
-
-#include "./data.c"
+void decompress_data(void);
+const data_header_t *get_header(void);
+const data_t *get_data(void);
+const uintptr_t to_decompressed_data_ptr(const uintptr_t);
 
 #endif

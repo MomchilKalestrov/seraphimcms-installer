@@ -1,6 +1,5 @@
 SECTIONS
 {
-    /* We place our payload after the read-only data segment */
     .payload : ALIGN(4096) 
     {
         __start_payload = .;
@@ -8,5 +7,4 @@ SECTIONS
         __stop_payload = .;
     }
 }
-/* This tells ld to append this to the standard default script */
 INSERT AFTER .text;
