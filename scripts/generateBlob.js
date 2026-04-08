@@ -1,22 +1,20 @@
 //@ts-check
+import './fetchQode.js';
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import { compress } from '@mongodb-js/zstd';
 
-import supportedPlatforms from './supportedPlatforms.js';
+import { TARGET_PLATFORM } from './constants.js';
 
-const OS = process.argv[ 2 ] === 'windows' ? 'win32' : 'linux';
-const ENTRYPOINT_COMMAND = 
-    OS === 'win32'
-    ?   'powershell -NoProfile -Command "try { Start-Process -FilePath \\".\\\\dist\\\\qode.exe\\" -ArgumentList \\".\\\\dist\\\\main.js\\" -Verb RunAs -WorkingDirectory \\"%CD%\\" -ErrorAction Stop } catch { exit 0 }"'
-    :   'pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js';
+const ENTRYPOINT_COMMAND = TARGET_PLATFORM === 'win32'
+?   'powershell -NoProfile -Command "try { Start-Process -FilePath \\".\\\\dist\\\\qode.exe\\" -ArgumentList \\".\\\\dist\\\\main.js\\" -Verb RunAs -WorkingDirectory \\"%CD%\\" -ErrorAction Stop } catch { exit 0 }"'
+:   'pkexec --keep-cwd env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XAUTHORITY=$XAUTHORITY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR ./dist/qode ./dist/main.js';
 
 const DATA_STRUCT_SIZE = 25;
 const DATA_HEADER_STRUCT_SIZE = 9;
-
-if (!supportedPlatforms.includes(OS)) throw new Error('Unsupported platform!');
 
 /** @typedef { { name: string; data: Buffer; permissions: number; } } file */
 
@@ -336,4 +334,4 @@ const main = async () => {
     console.log('Payload created with size: ' + toShorten(compressedBinary.byteLength));
 };
 
-main();
+await main();

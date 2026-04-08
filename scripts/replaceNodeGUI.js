@@ -1,51 +1,15 @@
 //@ts-check
 import fs from 'node:fs';
 import path from 'node:path';
-import tar from 'tar-stream';
-import { stdout } from 'node:process';
 import { createGunzip } from 'node:zlib';
 import { pipeline } from 'node:stream/promises';
-import { createInterface } from 'node:readline/promises';
+
+import tar from 'tar-stream';
 
 import download from './download.js';
-import supportedPlatforms from './supportedPlatforms.js';
+import { TARGET_PLATFORM } from './constants.js';
 
-const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-let OS = '';
-
-while (!supportedPlatforms.includes(OS))
-    OS = await new Promise(resolve => {
-        /** @param { string } line */
-        const lineHandler = (line) => {
-            rl.off('line', lineHandler);
-            resolve(line);
-        };
-
-        // console.log adds a new line at the end of the string,
-        // which makes the prompt look like:
-        // > 
-        // [user input]
-
-        const manualStdoutSuccess = stdout.write(
-            'NodeGUI includes OS dependent binaries.\n' +
-            `What OS will you be compiling for? (${ supportedPlatforms.toString() })\n` +
-            '> '
-        );
-        
-        if (!manualStdoutSuccess)
-            console.log(
-                'NodeGUI includes OS dependent binaries.\n' +
-                `What OS will you be compiling for? (${ supportedPlatforms.toString() })`
-            );
-
-        rl.on('line', lineHandler);
-    });
-
-const DOWNLOAD_DESTINATION = `./nodegui-${ OS }.tar.gz`;
+const DOWNLOAD_DESTINATION = `./nodegui-${ TARGET_PLATFORM }.tar.gz`;
 const NODEGUI_GYP_PATH = path.resolve(process.cwd(), 'node_modules/@nodegui/nodegui/build/Release');
 const OWNER = 'nodegui';
 const REPO = 'nodegui';
@@ -56,7 +20,6 @@ const REPO = 'nodegui';
  * @property { string } tag_name 
  */
 
-/** @returns { Promise<string> } */
 const getSource = async () => {
     const response = await fetch(`https://api.github.com/repos/${ OWNER }/${ REPO }/releases/tags/v0.74.0`, {
         headers: {
@@ -71,7 +34,7 @@ const getSource = async () => {
     
     // the right side of the null coalesing won't ever be reached
     // but it's required otherwise the TS checker complains :)
-    const downloadUrl = data.assets.find(({ name }) => name.includes(OS))?.browser_download_url ?? '';
+    const downloadUrl = data.assets.find(({ name }) => name.includes(TARGET_PLATFORM))?.browser_download_url ?? '';
 
     return downloadUrl;
 };
@@ -94,7 +57,7 @@ const copyGYP = async () => {
 };
 
 const main = async () => {
-    console.log(`Downloading NodeGUI for ${ OS }.`);
+    console.log(`Downloading NodeGUI for ${ TARGET_PLATFORM }.`);
     await download(await getSource(), DOWNLOAD_DESTINATION);
     console.log('Downloaded NodeGUI.');
     console.log('Extracting tarball.');
@@ -103,4 +66,4 @@ const main = async () => {
     console.log('Setup complete. You can select a different OS by running `npm install` again.');
 };
 
-main();
+await main();

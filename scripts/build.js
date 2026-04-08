@@ -114,7 +114,7 @@ const minifyProject = () => {
     };
 };
 
-const main = async () => {
+const main = () => {
     if (!buildProject()) process.exit(1);
     copyAssets();
     minifyProject();

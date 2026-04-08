@@ -4,16 +4,12 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 
 import download from './download.js';
-import supportedPlatforms from './supportedPlatforms.js';
+import { TARGET_PLATFORM, SLASH } from './constants.js';
 
-const SLASH = os.platform() === 'win32' ? '\\' : '/';
-const OS = process.argv[ 2 ] === 'windows' ? 'win32' : 'linux';
-const QODE_DESTINATION = OS === 'win32' ? `dist${ SLASH }qode.exe` : `dist${ SLASH }qode`;
-const QODE_REVERSE_DESTINATION = OS === 'win32' ? `dist${ SLASH }qode` : `dist${ SLASH }qode.exe`;
+const QODE_DESTINATION = TARGET_PLATFORM === 'win32' ? `dist${ SLASH }qode.exe` : `dist${ SLASH }qode`;
+const QODE_REVERSE_DESTINATION = TARGET_PLATFORM === 'win32' ? `dist${ SLASH }qode` : `dist${ SLASH }qode.exe`;
 const OWNER = 'MomchilKalestrov';
 const REPO = 'qodejs';
-
-if (!supportedPlatforms.includes(OS)) throw new Error('Unsupported platform!');
 
 /**
  * @typedef { object } release
@@ -35,7 +31,7 @@ const getSource = async () => {
     
     // the right side of the null coalesing won't ever be reached
     // but it's required otherwise the TS checker complains :)
-    const downloadUrl = data.assets.find(({ name }) => name.includes(OS))?.browser_download_url ?? '';
+    const downloadUrl = data.assets.find(({ name }) => name.includes(TARGET_PLATFORM))?.browser_download_url ?? '';
 
     return {
         downloadUrl,
@@ -68,7 +64,7 @@ const ensurePathExists = path =>
  */
 const getCurrentVersion = () => {
     /** @type { ReturnType<typeof spawnSync> } */
-    let process = os.platform() === 'linux' && OS === 'win32'
+    let process = os.platform() === 'linux' && TARGET_PLATFORM === 'win32'
         ?   spawnSync('wine', [ QODE_DESTINATION, '--version' ])
         :   spawnSync(QODE_DESTINATION, [ '--version' ]);
 
@@ -89,7 +85,7 @@ const getCurrentVersion = () => {
 const main = async () => {
     const { downloadUrl, version: newVersion } = await getSource();
     
-    // when testing, I noticed when compiling once for linux
+    // when testing, I noticed when compiling once for windows
     // then for linux inflates the result, which was caused
     // by duplicate runtimes, so we delete the one we don't
     // need :)
@@ -111,10 +107,9 @@ const main = async () => {
         QODE_DESTINATION
     );
 
-    if (os.platform() !== 'win32')
-        fs.chmodSync(QODE_DESTINATION, 0o755);
+    if (os.platform() !== 'win32') fs.chmodSync(QODE_DESTINATION, 0o755);
 
     process.exit(0);
 };
 
-main();
+await main();

@@ -46,7 +46,7 @@ function generate_icon_windows {
 }
 
 echo Building ZSTD
-build_zstd
+prepare_zstd
 
 echo Preparing \`payload.o\` 
 if [[ "$GCC_PREFIX" == *"mingw32"* ]]; then

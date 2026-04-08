@@ -59,6 +59,7 @@ publish
 .gitlab-ci-local/
 sea/lib/zstd
 sea/build
+scripts/__targetPlatform
 
 # Optional eslint cache
 .eslintcache
