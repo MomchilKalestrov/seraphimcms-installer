@@ -28,5 +28,12 @@
         "tar-stream": "^3.1.7",
         "terser": "^5.46.0",
         "typescript": "^5.9.3"
+    },
+    "overrides": {
+        "postcss-nodegui-autoprefixer": "https://github.com/MomchilKalestrov/postcss-nodegui-autoprefixer/releases/download/0.0.8/postcss-nodegui-autoprefixer-0.0.8.tgz",
+        "tar": "^7.5.13",
+        "cmake-js": "^8.0.0",
+        "postcss": "^8.5.10",
+        "cuid": "npm:@paralleldrive/cuid2@^3.3.0"
     }
 }

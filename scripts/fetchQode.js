@@ -1,13 +1,15 @@
 //@ts-check
 import fs from 'node:fs';
 import os from 'node:os';
+import url from 'node:url';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import download from './download.js';
-import { TARGET_PLATFORM, SLASH } from './constants.js';
+import { TARGET_PLATFORM } from './constants.js';
 
-const QODE_DESTINATION = TARGET_PLATFORM === 'win32' ? `dist${ SLASH }qode.exe` : `dist${ SLASH }qode`;
-const QODE_REVERSE_DESTINATION = TARGET_PLATFORM === 'win32' ? `dist${ SLASH }qode` : `dist${ SLASH }qode.exe`;
+const QODE_DESTINATION = path.join('dist', TARGET_PLATFORM === 'win32' ? 'qode.exe' : 'qode');
+const QODE_REVERSE_DESTINATION = path.join('dist', TARGET_PLATFORM === 'win32' ? 'qode' : 'qode.exe');
 const OWNER = 'MomchilKalestrov';
 const REPO = 'qodejs';
 
@@ -52,10 +54,10 @@ const shouldFetchNewVersion = (currentVersion, newVersion) => {
 };
 
 /**
- * @param { string } path 
+ * @param { string } p
  */
-const ensurePathExists = path =>
-    fs.mkdirSync(path.split(SLASH).slice(0, -1).join(SLASH), {
+const ensurePathExists = p =>
+    fs.mkdirSync(path.dirname(p), {
         recursive: true
     });
 
@@ -109,7 +111,11 @@ const main = async () => {
 
     if (os.platform() !== 'win32') fs.chmodSync(QODE_DESTINATION, 0o755);
 
-    process.exit(0);
+    const pathToThisFile = path.resolve(url.fileURLToPath(import.meta.url))
+    const pathPassedToNode = path.resolve(process.argv[1])
+    const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode)
+
+    
 };
 
 await main();

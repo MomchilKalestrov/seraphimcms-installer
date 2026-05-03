@@ -9,14 +9,19 @@ This is the install wizard to configure and start SeraphimCMS. To find the main 
 
 ### Requirements
 
-It's important to use `npm`. I have tried to use `pnpm`, but `qode.js` and `nodegui` bug out and so does `pnpm`. Also, there is a `postInstall` script that replaces the `qode.js` module in the `node_modules`.
+It's important to use `npm`. I have tried to use `pnpm`, but the packages for `qode.js` and `nodegui` crash the install process.
 
-You will also need `gcc` if you're building for Linux and `mingw32` for Windows.
+Currently, Linux can compile both for Linux (using `gcc`) and Windows (using `x86_64-w64-mingw32-gcc`).
+Unfortunately, Windows can only compile for Windows. To compile for Linux, use WSL2.
 
 ### Installing the dependencies
 
-After you run `npm i`/ `npm install`, you will be prompted to select the platform you will be building for. The current options are Linux and Windows. This step replaces the `nodegui` and `qode.js` binaries with newer versions, since the ones hosted on the `npm` repo are extremely outdated.
+After you run `npm i`/ `npm install`, you will be prompted to select the platform you will be building for.
+The current options are Linux and Windows. This step replaces the `nodegui` and `qode.js` binaries with newer versions,
+since the ones hosted on the `npm` repo are extremely outdated.
+
+To change the target platform, run `npm i`/ `npm install` again and select a different platform.
 
 ### Building
 
-If you are building for Windows use `npm run publish:win32`, or for Linux - `npm run publish:linux`.
+Run `npm run publish`.

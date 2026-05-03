@@ -9,8 +9,8 @@ import tar from 'tar-stream';
 import download from './download.js';
 import { TARGET_PLATFORM } from './constants.js';
 
-const DOWNLOAD_DESTINATION = `./nodegui-${ TARGET_PLATFORM }.tar.gz`;
-const NODEGUI_GYP_PATH = path.resolve(process.cwd(), 'node_modules/@nodegui/nodegui/build/Release');
+const DOWNLOAD_DESTINATION = `nodegui-${ TARGET_PLATFORM }.tar.gz`;
+const NODEGUI_GYP_PATH = path.resolve('node_modules', '@nodegui', 'nodegui', 'build', 'Release');
 const OWNER = 'nodegui';
 const REPO = 'nodegui';
 

@@ -4,6 +4,13 @@ stages:
   - publish-build
   - update-github-mirror
 
+workflow:
+  rules:
+    - changes:
+      - src/**/*
+      - package.json
+      - tsconfig.json
+
 auto-create-release:
   stage: auto-create-release
   image: ubuntu:latest

@@ -2,12 +2,13 @@
 import './buildSea.js';
 
 import fs from 'node:fs';
+import path from 'node:path';
 
-import { SLASH, TARGET_PLATFORM } from './constants.js';
+import { TARGET_PLATFORM } from './constants.js';
 
 const [ PUBLISH_SRC, PUBLISH_DEST ] = TARGET_PLATFORM === 'win32'
-?   [ `sea${SLASH }build${ SLASH }out.exe`, `publish${ SLASH }seraphimcms-win32-installer.exe` ]
-:   [ `sea${SLASH }build${ SLASH }out`, `publish${ SLASH }seraphimcms-linux-installer` ]
+?   [ path.resolve('sea', 'build', 'out.exe'), path.resolve('publish', 'seraphimcms-win32-installer.exe') ]
+:   [ path.resolve('sea', 'build', 'out'), path.resolve('publish', 'seraphimcms-linux-installer') ]
 
 const main = () => {
     fs.mkdirSync('publish', { recursive: true });
