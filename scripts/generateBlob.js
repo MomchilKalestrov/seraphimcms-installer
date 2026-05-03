@@ -1,5 +1,5 @@
 //@ts-check
-import './fetchQode.js';
+import './build.js';
 
 import fs from 'node:fs';
 import path from 'node:path';
