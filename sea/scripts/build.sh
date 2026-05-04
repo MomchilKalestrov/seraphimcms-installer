@@ -21,8 +21,8 @@ function prepare_payload_linux {
 }
 
 function prepare_zstd {
-    file $BASE_DIR/lib/zstd > /dev/null 2> /dev/null
-    if [ $? = 1 ]; then
+    if [ ! -e $BASE_DIR/lib/zstd ]; then
+        echo cloning zstd
         mkdir -p $BASE_DIR/lib/zstd
         git clone https://github.com/facebook/zstd.git $BASE_DIR/lib/zstd
     fi
