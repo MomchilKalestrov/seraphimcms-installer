@@ -7,7 +7,8 @@ import {
     QLineEdit,
     QGridLayout,
     AlignmentFlag,
-    QSizePolicyPolicy
+    QSizePolicyPolicy,
+    QCheckBox
 } from '@nodegui/nodegui';
 
 import BasePage from '../../lib/basePage.ts';
@@ -16,7 +17,14 @@ import locale from '../../lib/texts.ts';
 
 class SetupEnvironmentPage extends BasePage {
     private elements: QWidget;
-    private requiredVariables = [ 'MONGODB_URI', 'NEXTAUTH_URL', 'BLOB_READ_WRITE_TOKEN', 'NEXT_PUBLIC_BLOB_URL', 'NEXTAUTH_SECRET' ];
+
+    // with the inclusion of the FS blob driver, `requiredVariables` needs
+    // to work when the FS blob driver is selected, which means there can
+    // be different required variables
+    private requiredVariables = [
+        [ 'MONGODB_URI', 'NEXTAUTH_URL', 'NEXTAUTH_SECRET', 'BLOB_READ_WRITE_TOKEN', 'NEXT_PUBLIC_BLOB_URL' ],
+        [ 'MONGODB_URI', 'NEXTAUTH_URL', 'NEXTAUTH_SECRET', 'FS_DRIVER_SELECTED' ]
+    ];
     
     constructor() {
         super();
@@ -28,6 +36,29 @@ class SetupEnvironmentPage extends BasePage {
         const title = new QLabel();
         title.setText(locale.pages.setupEnvironment.title);
         title.setInlineStyle('font-size: 24px; font-weight: 600;');
+        //#endregion
+        
+        //#region - FS DRIVER_TOGGLE
+        const fsDriverToggle = new QCheckBox();
+        fsDriverToggle.setText(locale.pages.setupEnvironment.fsDriver);
+        fsDriverToggle.setToolTip(locale.pages.setupEnvironment.fsDriverTooltip);
+        fsDriverToggle.addEventListener('toggled', toggled => {
+            global.envVars = Object.fromEntries(
+                Object.entries(global.envVars)
+                    .filter(([ key ]) => this.requiredVariables[ toggled ? 1 : 0 ]!.includes(key)
+                )
+            );
+
+            if (toggled) {
+                blobTokenInput.setText('');
+                blobUrlInput.setText('');
+
+                this.setEnvVar('FS_DRIVER_SELECTED', 'true');
+            };
+
+            blobTokenInput.setDisabled(toggled);
+            blobUrlInput.setDisabled(toggled);
+        });
         //#endregion
 
         //#region - MONGODB_URI -
@@ -52,7 +83,7 @@ class SetupEnvironmentPage extends BasePage {
         const blobTokenLabel = new QLabel();
         blobTokenLabel.setText(locale.pages.setupEnvironment.blobToken);
         const blobTokenInput = new QLineEdit();
-        blobTokenInput.setPlaceholderText('vercel_blob_rw_<...>');
+        blobTokenInput.setPlaceholderText('...');
         blobTokenInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
         blobTokenInput.addEventListener('textChanged', text => this.setEnvVar('BLOB_READ_WRITE_TOKEN', text));
         //#endregion
@@ -61,7 +92,7 @@ class SetupEnvironmentPage extends BasePage {
         const blobUrlLabel = new QLabel();
         blobUrlLabel.setText(locale.pages.setupEnvironment.blobUrl);
         const blobUrlInput = new QLineEdit();
-        blobUrlInput.setPlaceholderText('https://<...>.public.blob.vercel-storage.com');
+        blobUrlInput.setPlaceholderText('https://<...>');
         blobUrlInput.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Fixed);
         blobUrlInput.addEventListener('textChanged', text => this.setEnvVar('NEXT_PUBLIC_BLOB_URL', text));
         //#endregion
@@ -72,8 +103,9 @@ class SetupEnvironmentPage extends BasePage {
         this.elements.setSizePolicy(QSizePolicyPolicy.Expanding, QSizePolicyPolicy.Expanding);
         this.elements.setLayout(layout);
         this.elements.setContentsMargins(8, 8, 8, 8);
-        for (let i = 0; i < 5; i++)
+        for (let i = 0; i < 6; i++)
             layout.setRowStretch(i, 0);
+
         layout.setColumnStretch(0, 0);
         layout.setColumnStretch(1, 1);
         layout.addWidget(title, 0, 0, 1, 2, AlignmentFlag.AlignTop | AlignmentFlag.AlignLeft);
@@ -89,6 +121,8 @@ class SetupEnvironmentPage extends BasePage {
         
         layout.addWidget(blobUrlLabel, 4, 0, 1, 1);
         layout.addWidget(blobUrlInput, 4, 1, 1, 1);
+
+        layout.addWidget(fsDriverToggle, 5, 0, 1, 2, AlignmentFlag.AlignTop | AlignmentFlag.AlignLeft);
         //#endregion
     };
 
@@ -103,14 +137,13 @@ class SetupEnvironmentPage extends BasePage {
         return super.off(event, handler);
     };
 
-    private canProceed = (): boolean =>
-        Object
-            .entries(global.envVars)
-            .every(([ key, value ], _, arr) =>
-                this.requiredVariables.includes(key) &&
-                arr.length === this.requiredVariables.length &&
-                Boolean(value)
-            );
+    private canProceed = (): boolean => {
+        const iterableEnvVars = Object.entries(globalThis.envVars);
+
+        return this.requiredVariables.some(set => {
+            set.every(envVar => iterableEnvVars.find(([ key ]) => envVar === key))
+        });
+    };
     
     private toEscapedValue = (value: string): string => {
         let out = '';

@@ -15,6 +15,8 @@ interface Locale {
             blobUrl: string;
             blobToken: string;
             domain: string;
+            fsDriver: string;
+            fsDriverTooltip: string;
         };
         setupContainer: {
             title: string;
@@ -91,7 +93,9 @@ const locales: Record<string, Locale> = {
                 dbUrl: 'DB URL:',
                 domain: 'Domain:',
                 blobToken: 'Blob Token:',
-                blobUrl: 'Blob URL:'
+                blobUrl: 'Blob URL:',
+                fsDriver: 'Use FS driver',
+                fsDriverTooltip: 'Checking this box means SeraphimCMS will use your disk instead of cloud blob storage.'
             },
             setupContainer: {
                 title: 'Install container',
@@ -188,7 +192,9 @@ const locales: Record<string, Locale> = {
                 dbUrl: 'URL на БД:',
                 domain: 'Домейн:',
                 blobToken: 'Blob Token:',
-                blobUrl: 'Blob URL:'
+                blobUrl: 'Blob URL:',
+                fsDriver: 'Да се използва драйвер за файловата система',
+                fsDriverTooltip: 'Избирането на тази опция означава, че SeraphimCMS ще използва вашия диск вместо blob памет в облака.'
             },
             setupContainer: {
                 title: 'Инсталиране на контейнера',

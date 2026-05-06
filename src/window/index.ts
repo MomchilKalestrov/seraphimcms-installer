@@ -12,8 +12,7 @@ import {
     QGridLayout,
     QMainWindow,
     QPushButton,
-    AlignmentFlag,
-    QFontDatabase
+    AlignmentFlag
 } from '@nodegui/nodegui';
 
 import pages from '../pages/index.ts';
@@ -62,9 +61,9 @@ class Window {
         //#region - Separator -
         const separator = new QFrame();
         separator.setFrameShape(Shape.HLine);
-        separator.setFrameShadow(Shadow.Sunken)
+        separator.setFrameShadow(Shadow.Sunken);
         separator.setContentsMargins(0, 0, 0, 0);
-        separator.setInlineStyle('border-bottom: 1px solid #888888;');
+        separator.setFixedHeight(1);
         //#endregion
 
         //#region - Next Button -

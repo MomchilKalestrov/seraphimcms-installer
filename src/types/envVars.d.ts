@@ -5,6 +5,7 @@ declare global {
         BLOB_READ_WRITE_TOKEN?: string | undefined;
         NEXT_PUBLIC_BLOB_URL?: string | undefined;
         NEXTAUTH_SECRET?: string | undefined;
+        FS_DRIVER_SELECTED?: string | undefined;
     };
 };
 
