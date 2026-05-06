@@ -45,7 +45,7 @@ build-release:
     - apt-get install -y nodejs
   script:
     - npm i <<< $PLATFORM
-    - npm run publish:$PLATFORM
+    - npm run publish
   artifacts:
     paths:
       - publish/
