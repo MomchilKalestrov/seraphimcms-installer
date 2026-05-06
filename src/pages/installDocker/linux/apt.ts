@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import { run } from '../../../lib/utils.ts';
 import download from '../../../lib/download.ts';
 
+// some BS issue requires me to do this so Debian works
 dns.setDefaultResultOrder('ipv4first');
 
 const getDistroInfo = async (): Promise<{ distro: string, codename: string }> => {
@@ -30,10 +31,7 @@ const installDocker = async () => {
 
     const { distro, codename } = await getDistroInfo();
 
-    const gpgKey = await download(
-        `https://download.docker.com/linux/${ distro }/gpg`,
-        progress => console.log(`${ progress }%`)
-    );
+    const gpgKey = await download(`https://download.docker.com/linux/${ distro }/gpg`);
     await fs.writeFile('/etc/apt/keyrings/docker.asc', gpgKey);
     await run('chmod', [ 'a+r', '/etc/apt/keyrings/docker.asc' ]);
 

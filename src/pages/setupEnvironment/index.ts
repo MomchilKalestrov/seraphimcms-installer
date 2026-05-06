@@ -11,9 +11,9 @@ import {
     QCheckBox
 } from '@nodegui/nodegui';
 
-import BasePage from '../../lib/basePage.ts';
-import { ENV_FILE, ENV_PATH } from '../../lib/constants.ts';
 import locale from '../../lib/texts.ts';
+import BasePage from '../../lib/basePage.ts';
+import { ENV_FILE, ASSETS_PATH } from '../../lib/constants.ts';
 
 class SetupEnvironmentPage extends BasePage {
     private elements: QWidget;
@@ -167,7 +167,7 @@ class SetupEnvironmentPage extends BasePage {
     };
     
     private writeEnvFile = () => {
-        fs.mkdirSync(ENV_PATH, { recursive: true });
+        fs.mkdirSync(ASSETS_PATH, { recursive: true });
         fs.writeFileSync(
             ENV_FILE,
             Object

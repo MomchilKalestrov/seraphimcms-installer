@@ -1,19 +1,10 @@
-import fs from 'node:fs';
-import http from 'node:https';
-
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const FILENAME = '.\\DockerDesktopInstaller.exe';
+import download from '../../lib/download.ts';
+import { ASSETS_PATH } from '../../lib/constants.ts';
 
-const downloadDockerDesktop = (): Promise<void> =>
-    new Promise(async resolve => {
-        http.get('https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe', response => {
-            const writeStream = fs.createWriteStream(FILENAME);
-            writeStream.on('finish', resolve);
-            response.pipe(writeStream);
-        });
-    });
-
+const FILENAME = 'DockerDesktopInstaller.exe';
 
 const enableDockerService = () => {
     const { error } = spawnSync('schtasks', [
@@ -30,7 +21,10 @@ const enableDockerService = () => {
 };
 
 const installDocker = async () => {
-    await downloadDockerDesktop();
+    await download(
+        'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe',
+        path.resolve(ASSETS_PATH, FILENAME)
+    );
     spawnSync(FILENAME, [ 'install', '--accept-license', '--backend=wsl-2', '--always-run-service' ]);
     enableDockerService();
 };

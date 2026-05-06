@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 
@@ -10,12 +9,13 @@ import {
     QProgressBar,
 } from '@nodegui/nodegui';
 
+import locale from '../../lib/texts.ts';
 import BasePage from '../../lib/basePage.ts';
 import download from '../../lib/download.ts';
-import { OWNER, REPO, IMAGE_FILENAME } from '../../lib/constants.ts';
-import enableAutoStartService from './enableAutoStartService.ts';
+import { CONTAINER_NAME, CONTAINER_PATH, CONTAINER_URL, ENV_FILE } from '../../lib/constants.ts';
+
 import exposePort from './exposePort.ts';
-import locale from '../../lib/texts.ts';
+import enableAutoStartService from './enableAutoStartService.ts';
 
 class SetupContainerPage extends BasePage {
     private elements: QWidget;
@@ -27,15 +27,14 @@ class SetupContainerPage extends BasePage {
 
         //#region - Title -
         const title = new QLabel();
-        title.setText('Install container');
+        title.setText(locale.pages.setupContainer.title);
         title.setInlineStyle('font-size: 24px; font-weight: 600;');
         //#endregion
 
         //#region - Text -
         const text = new QLabel();
         text.setText(
-            'The installer will now download and load the\n' +
-            'SeraphimCMS image.'
+            locale.pages.setupContainer.info
         );
         //#endregion
 
@@ -63,44 +62,49 @@ class SetupContainerPage extends BasePage {
     };
 
     private getDownloadUrl = async () => {
-        const response = await fetch(`https://api.github.com/repos/${ OWNER }/${ REPO }/releases/latest`, {
-            headers: {
-            'Accept': 'application/vnd.github+json',
-            }
-        });
+        const response = await fetch(CONTAINER_URL);
 
         if (!response.ok) throw locale.pages.setupContainer.errors.downloadFailed;
 
-        const { assets } = await response.json() as { assets: { name: string; browser_download_url: string; }[]; };
+        type release = {
+            assets: {
+                links: ({
+                    name: string;
+                    url: string;
+                })[]
+            };
+        };
 
-        const { browser_download_url } = assets.find(({ name }) => name.endsWith('.tar'))!;
+        const { assets: { links } } = (await response.json() as release[])[ 0 ]!;
+        const { url } = links.find(({ name }) => name.endsWith('.tar'))!;
 
-        return browser_download_url;
+        return url;
     };
 
-    private startInstall = () => {
+    private startInstall = async () => {
         this.status.setText(locale.pages.setupContainer.status.downloading);
-        this.getDownloadUrl()
-            .then(url => download(url, progress => this.progress.setValue(progress)))
-            .then(blob => {
-                fs.writeFileSync(IMAGE_FILENAME, blob);
+        
+        try {
+            const downloadUrl = await this.getDownloadUrl();
+            await download(downloadUrl, CONTAINER_PATH, progress => this.progress.setValue(progress));
 
-                this.status.setText(locale.pages.setupContainer.status.loading);
-                spawnSync('docker', [ 'load', '-i', IMAGE_FILENAME ]);
-                spawnSync('docker', [ 'run', '-d', `--env-file=${ IMAGE_FILENAME }`, '--restart', 'unless-stopped', 'seraphimcms:latest' ]);
-
-                this.status.setText(locale.pages.setupContainer.status.exposingPort);
-                exposePort();
-                
-                if (os.platform() !== 'win32') {
-                    this.status.setText(locale.pages.setupContainer.status.enablingService);
-                    enableAutoStartService();
-                };
-                
-                this.status.setText(locale.success);
-                this.statusEventEmitter.emit('status', true);
-            })
-            .catch(error => this.status.setText(locale.error + '\n' + (error.message ?? error)));
+            this.status.setText(locale.pages.setupContainer.status.loading);
+            spawnSync('docker', [ 'load', '-i', CONTAINER_PATH ]);
+            spawnSync('docker', [ 'run', '-d', `--env-file=${ ENV_FILE }`, '--restart', 'unless-stopped', CONTAINER_NAME ]);
+    
+            this.status.setText(locale.pages.setupContainer.status.exposingPort);
+            exposePort();
+            
+            if (os.platform() !== 'win32') {
+                this.status.setText(locale.pages.setupContainer.status.enablingService);
+                enableAutoStartService();
+            };
+            
+            this.status.setText(locale.success);
+            this.statusEventEmitter.emit('status', true);
+        } catch (error) {
+            this.status.setText(locale.error + '\n' + (error instanceof Error ? error.message : error))
+        };
     };
 
     public on(...[ event, handler ]: Parameters<pageEventHandlers>) {
