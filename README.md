@@ -17,8 +17,8 @@ Unfortunately, Windows can only compile for Windows. To compile for Linux, use W
 ### Installing the dependencies
 
 After you run `npm i`/ `npm install`, you will be prompted to select the platform you will be building for.
-The current options are Linux and Windows. This step replaces the `nodegui` and `qode.js` binaries with newer versions,
-since the ones hosted on the `npm` repo are extremely outdated.
+The current options are Linux and Windows. This step replaces the `nodegui` and `qode.js` binaries with the ones for
+the target platform you've selected.
 
 To change the target platform, run `npm i`/ `npm install` again and select a different platform.
 
