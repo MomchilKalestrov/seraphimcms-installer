@@ -2,10 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME } from '../../../lib/constants.ts';
+import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME, SERVICE_TITLE } from '../../../lib/constants.ts';
 
 const enableAutoStartService = () => {
-    const serviceDir = `/etc/sv/${ DOCKER_NAME }`;
+    const serviceDir = `/etc/sv/${ SERVICE_TITLE }`;
     const runFile = path.join(serviceDir, 'run');
 
     if (!fs.existsSync(serviceDir)) fs.mkdirSync(serviceDir, { recursive: true });

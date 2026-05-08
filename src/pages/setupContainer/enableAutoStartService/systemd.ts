@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
-import { CONTAINER_NAME, DOCKER_BIN } from '../../../lib/constants.ts';
+import { CONTAINER_NAME, DOCKER_BIN, SERVICE_DESCRIPTION, SERVICE_TITLE } from '../../../lib/constants.ts';
 
 const enableAutoStartService = () => {
-    const serviceFile = `/etc/systemd/system/${ CONTAINER_NAME }.service`;
+    const serviceFile = `/etc/systemd/system/${ SERVICE_TITLE }.service`;
     const content =
         `[Unit]\n` +
-        `Description=SeraphimCMS Docker container\n` +
+        `Description=${ SERVICE_DESCRIPTION }\n` +
         `After=docker.service\n` +
         `Requires=docker.service\n` +
         `\n` +

@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
-import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME } from '../../../lib/constants.ts';
+import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME, SERVICE_TITLE } from '../../../lib/constants.ts';
 
 const enableAutoStartService = () => {
-    const scriptFile = `/etc/init.d/${ DOCKER_NAME }`;
+    const scriptFile = `/etc/init.d/${ SERVICE_TITLE }`;
     const content =
         `#!/sbin/openrc-run\n` +
         `\n` +
-        `name="${ DOCKER_NAME }"\n` +
+        `name="${ SERVICE_TITLE }"\n` +
         `command="${ DOCKER_BIN }"\n` +
         `command_args="start -a ${ DOCKER_NAME }"\n` +
         `pidfile="/run/$RC_SVCNAME.pid"\n` +

@@ -1,19 +1,19 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
-import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME } from '../../../lib/constants.ts';
+import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME, SERVICE_TITLE, SERVICE_DESCRIPTION } from '../../../lib/constants.ts';
 
 const enableAutoStartService = () => {
     const scriptFile = `/etc/init.d/${ DOCKER_NAME }`;
     const content =
         `#!/bin/sh\n` +
         `### BEGIN INIT INFO\n` +
-        `# Provides:          ${ DOCKER_NAME }\n` +
+        `# Provides:          ${ SERVICE_TITLE }\n` +
         `# Required-Start:    $docker\n` +
         `# Required-Stop:     $docker\n` +
         `# Default-Start:     2 3 4 5\n` +
         `# Default-Stop:      0 1 6\n` +
-        `# Short-Description: SeraphimCMS Docker container\n` +
+        `# Short-Description: ${ SERVICE_DESCRIPTION }\n` +
         `### END INIT INFO\n` +
         `\n` +
         `case "$1" in\n` +
