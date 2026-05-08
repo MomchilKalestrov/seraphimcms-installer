@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
-import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME, SERVICE_TITLE } from '../../../lib/constants.ts';
+import { DOCKER_NAME, DOCKER_BIN, ENV_FILE, CONTAINER_NAME, SERVICE_TITLE, BLOB_FS_PATH } from '../../../lib/constants.ts';
 
 const enableAutoStartService = () => {
     const scriptFile = `/etc/init.d/${ SERVICE_TITLE }`;
@@ -19,7 +19,7 @@ const enableAutoStartService = () => {
         `\n` +
         `start_pre() {\n` +
         `    if ! ${ DOCKER_BIN } ps -a --format '{{.Names}}' | grep -q "^${ DOCKER_NAME }$"; then\n` +
-        `        ${ DOCKER_BIN } run -d --name ${ DOCKER_NAME } --env-file=${ ENV_FILE } --restart unless-stopped ${ CONTAINER_NAME }\n` +
+        `        ${ DOCKER_BIN } run -d --name ${ DOCKER_NAME } -v ${ BLOB_FS_PATH }:/app/public -p 443:3000 --env-file=${ ENV_FILE } --restart unless-stopped ${ CONTAINER_NAME }\n` +
         `    fi\n` +
         `}`;
 

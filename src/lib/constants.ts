@@ -14,3 +14,4 @@ export const CONTAINER_PATH = path.resolve(ASSETS_PATH, 'seraphimcms-container.t
 export const SERVICE_TITLE = DOCKER_NAME;
 export const SERVICE_DESCRIPTION = 'SeraphimCMS Docker container'
 export const GROUP_NAME = DOCKER_NAME;
+export const BLOB_FS_PATH = path.resolve(ASSETS_PATH, 'public');

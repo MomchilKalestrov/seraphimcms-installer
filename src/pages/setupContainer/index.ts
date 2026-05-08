@@ -12,7 +12,7 @@ import {
 import locale from '../../lib/texts.ts';
 import BasePage from '../../lib/basePage.ts';
 import download from '../../lib/download.ts';
-import { CONTAINER_NAME, CONTAINER_PATH, CONTAINER_URL, ENV_FILE } from '../../lib/constants.ts';
+import { CONTAINER_NAME, CONTAINER_PATH, CONTAINER_URL, ENV_FILE, DOCKER_NAME, BLOB_FS_PATH } from '../../lib/constants.ts';
 
 import exposePort from './exposePort.ts';
 import enableAutoStartService from './enableAutoStartService.ts';
@@ -90,7 +90,16 @@ class SetupContainerPage extends BasePage {
 
             this.status.setText(locale.pages.setupContainer.status.loading);
             spawnSync('docker', [ 'load', '-i', CONTAINER_PATH ]);
-            spawnSync('docker', [ 'run', '-d', `--env-file=${ ENV_FILE }`, '--restart', 'unless-stopped', CONTAINER_NAME ]);
+            spawnSync('docker', [
+                'run',
+                '-d',
+                '--name', DOCKER_NAME,
+                '-v', `${ BLOB_FS_PATH }:/app/public`,
+                '-p', '443:3000',
+                `--env-file=${ ENV_FILE }`,
+                '--restart', 'unless-stopped',
+                CONTAINER_NAME,
+            ]);
     
             this.status.setText(locale.pages.setupContainer.status.exposingPort);
             exposePort();
