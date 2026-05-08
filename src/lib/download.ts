@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import https from 'node:https';
 
+import { ownPath } from './utils.ts';
+
 function download(url: string, path: string, onProgress?: (progress: number) => void): Promise<void>;
 function download(url: string, onProgress?: (progress: number) => void): Promise<Buffer>;
 
@@ -46,7 +48,10 @@ const downloadToFile = (url: string, path: string, onProgress?: (progress: numbe
             const writeStream = fs.createWriteStream(path);
             res.pipe(writeStream);
 
-            writeStream.on('finish', resolve);
+            writeStream.on('finish', () => {
+                ownPath(path);
+                resolve();
+            });
             writeStream.on('error', reject);
         });
     });

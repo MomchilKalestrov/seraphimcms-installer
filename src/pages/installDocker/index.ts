@@ -17,6 +17,7 @@ import BasePage from '../../lib/basePage.ts';
 import linux from './linux.ts';
 import win32 from './win32.ts';
 import locale from '../../lib/texts.ts';
+import { createProjectDirectory } from '../../lib/createProjectsDirectory.ts';
 
 const platforms: Record<string, () => Promise<void>> = { linux, win32 };
 
@@ -65,6 +66,8 @@ class InstallDockerPage extends BasePage {
         layout.addWidget(text);
         layout.addWidget(this.installButton, 0, AlignmentFlag.AlignLeft);
         //#endregion
+
+        createProjectDirectory();
     };
 
     private isDockerInstalled = (): boolean => {
@@ -96,13 +99,13 @@ class InstallDockerPage extends BasePage {
     private installDocker = () => {
         this.installButton.setDisabled(true);
         this.installButton.setText(locale.pages.installDocker.wait);
-        
+
         const installer = platforms[ os.platform() ];
         
         installer!()
             .then(() => {
-                this.statusEventEmitter.emit('status', true);
                 this.installButton.setText(locale.success);
+                this.statusEventEmitter.emit('status', true);
             })
             .catch(error => this.installButton.setText(locale.error + '\n' + (error.message ?? error) + '\nInstall and enable Docker manually.'));
     };

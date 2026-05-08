@@ -13,7 +13,8 @@ import {
 
 import locale from '../../lib/texts.ts';
 import BasePage from '../../lib/basePage.ts';
-import { ENV_FILE, ASSETS_PATH } from '../../lib/constants.ts';
+import { ENV_FILE } from '../../lib/constants.ts';
+import { ownPath } from '../../lib/utils.ts';
 
 class SetupEnvironmentPage extends BasePage {
     private elements: QWidget;
@@ -167,7 +168,6 @@ class SetupEnvironmentPage extends BasePage {
     };
     
     private writeEnvFile = () => {
-        fs.mkdirSync(ASSETS_PATH, { recursive: true });
         fs.writeFileSync(
             ENV_FILE,
             Object
@@ -175,6 +175,7 @@ class SetupEnvironmentPage extends BasePage {
                 .map(([ key, value ]) => `${ key }=${ this.toEscapedValue(value!) }`)
                 .join('\n')
         );
+        ownPath(ENV_FILE);
     };
 
     private setEnvVar = (key: keyof typeof global.envVars, value: string) => {

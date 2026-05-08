@@ -1,4 +1,7 @@
+import os from 'node:os';
 import { spawn, spawnSync, type SpawnOptions } from 'node:child_process';
+
+import { GROUP_NAME } from './constants.ts';
 
 const inits = [ 'init', 'openrc', 'runit', 'systemd' ];
 
@@ -8,7 +11,7 @@ export const getInit = (): string | undefined => {
 };
 
 export const run = (command: string, args: string[], options: SpawnOptions & { input?: string | Buffer } = {}) =>
-    new Promise((resolve, reject) => {
+    new Promise<number>((resolve, reject) => {
         console.log('> ' + [ command, ...args ].join(' '));
         
         const { input, ...spawnOptions } = options;
@@ -29,3 +32,8 @@ export const run = (command: string, args: string[], options: SpawnOptions & { i
             else reject(new Error('Process ' + command + ' exited with ' + code));
         });
     });
+
+export const ownPath = (path: string) => {
+    if (os.platform() !== 'win32')
+        spawnSync('chown', [ `:${ GROUP_NAME }`, path ]);
+};

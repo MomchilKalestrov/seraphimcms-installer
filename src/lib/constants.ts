@@ -3,7 +3,10 @@ import path from 'node:path';
 
 export const DOCKER_BIN = '/usr/bin/docker';
 export const DOCKER_NAME = 'seraphimcms';
-export const ASSETS_PATH = path.resolve(os.homedir(), 'seraphimcms');
+export const ASSETS_PATH = 
+    os.platform() === 'win32'
+    ?   path.resolve(os.homedir(), 'seraphimcms')
+    :   path.resolve('/', 'srv', 'seraphimcms');
 export const ENV_FILE = path.resolve(ASSETS_PATH, '.env');
 export const CONTAINER_NAME = 'seraphimcms:latest';
 export const CONTAINER_URL = 'https://gitlab.example.com/api/v4/projects/80766300/releases';
